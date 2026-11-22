@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,14 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第16章　聚类分析：动态聚类法</h1>
+            <p class="article-meta">K-means · K-medoids · 肘部法则 · 轮廓系数</p>
+        </header>
+
 
         <h2>开篇：当系统聚类遇上大数据</h2>
 
@@ -65,22 +72,39 @@
    μ₁, μ₂, ..., μₖ
 2. 重复以下步骤直到收敛：
    a. 分配步骤 (Assignment)：
-      对每个样本 xᵢ，计算它与所有簇中心的距离
+      对每个样本 xᵢ，计算它到
+      所有簇中心的距离
       将 xᵢ 分配到距离最近的簇：
       cᵢ = argmin_k ||xᵢ - μₖ||²
    b. 更新步骤 (Update)：
-      对每个簇 k，用簇内所有样本的均值更新中心：
+      对每个簇 k，用簇内所有样本的
+      均值更新中心：
       μₖ = (1/|Cₖ|) Σ_{xᵢ∈Cₖ} xᵢ
 3. 当簇分配不再变化（或变化小于阈值）时停止</code></pre>
 
         <p>K-means 的<strong>目标函数 (objective function)</strong> 是组内离差平方和（within-cluster sum of squares, WCSS），也叫 inertia：</p>
 
         <pre><code># K-means 最小化的目标
-J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
+J = Σₖ Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 
 # 这个目标函数衡量的是：
 # 每个样本到其所属簇中心的距离平方之和
-# K-means 的每次迭代都保证 J 不增（单调收敛）</code></pre>
+# 每次迭代都保证 J 不增
+# （单调收敛）</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="K-means 目标函数，可横向滚动">
+                <math display="block" aria-label="K-means 目标函数 J 等于对 k 从 1 到 K 求和，再对属于簇 C k 的样本 x i 求和，每项是样本到其簇中心 mu k 的欧氏范数平方">
+                    <mrow>
+                        <mi>J</mi><mo>=</mo>
+                        <munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover>
+                        <munder><mo>∑</mo><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∈</mo><msub><mi>C</mi><mi>k</mi></msub></mrow></munder>
+                        <msup><mrow><mo>‖</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>k</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (16.1)　目标函数 J（即 WCSS）：两层求和分别遍历簇与簇内样本。分配步与更新步交替进行时 J 单调不增，因此算法必收敛到局部极小。</p>
+        </div>
 
         <p>注意 K-means 只能保证收敛到<strong>局部最优</strong>，而非全局最优。初始中心的选择对最终结果影响巨大。这也是为什么实际使用 K-means 时，我们通常要跑多次（比如 10-50 次）并选择目标函数最小的一次的结果。</p>
 
@@ -102,11 +126,13 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 
 1. 从数据中均匀随机选取第一个中心 μ₁
 2. 对于 k = 2 到 K：
-   a. 对每个样本 xᵢ，计算 D(xᵢ) = min_{j&lt;k} ||xᵢ - μⱼ||²
-   b. 以概率 P(xᵢ) = D(xᵢ) / Σⱼ D(xⱼ) 选择下一个中心 μₖ
+   a. 对每个样本 xᵢ，计算
+      D(xᵢ) = min_{j&lt;k} ||xᵢ - μⱼ||²
+   b. 以概率 P(xᵢ) = D(xᵢ) / Σⱼ D(xⱼ)
+      选择下一个中心 μₖ
 3. 用选出的 K 个中心运行标准 K-means
 
-# 这样选出的初始中心：越是远离已有中心，越可能被选中</code></pre>
+# 越远离已有中心，越可能被选中</code></pre>
 
         <p>scikit-learn 的 K-means 默认使用 K-means++ 初始化，这也是为什么你直接用 sklearn 通常能得到不错的结果。</p>
 
@@ -122,6 +148,30 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 
         <p>为什么肘部会出现？因为增加 K 总是能使每个簇更紧凑（WCSS 更小），但当 K 超过数据真正的分组数后，继续增加 K 带来的 WCSS 下降幅度会明显变小——因为你在把已经足够紧凑的群体硬拆开来。</p>
 
+        <figure>
+            <svg viewBox="0 0 720 360" role="img" aria-labelledby="f16-title f16-desc">
+                <title id="f16-title">肘部法则示意：K 与 WCSS 的关系曲线</title>
+                <desc id="f16-desc">横轴为簇数 K，纵轴为组内离差平方和 WCSS。曲线随 K 增大而单调下降，在 K 等于 3 附近从陡降转为平缓，此拐点即“肘部”。K 再增大时 WCSS 下降幅度明显变小。</desc>
+                <rect width="720" height="360" fill="#fafafe"/>
+                <line x1="90" y1="50" x2="90" y2="320" stroke="#94a3b8" stroke-width="1.5"/>
+                <line x1="90" y1="320" x2="670" y2="320" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="60" y="185" font-size="13" fill="#5b21b6">WCSS</text>
+                <text x="660" y="342" font-size="13" fill="#5b21b6">K</text>
+                <polyline points="90,60 152,159 214,216 276,234 338,245 400,252 462,259 524,264 586,268 648,272" fill="none" stroke="#7c3aed" stroke-width="3"/>
+                <g fill="#7c3aed">
+                    <circle cx="90" cy="60" r="5"/><circle cx="152" cy="159" r="5"/><circle cx="214" cy="216" r="5"/>
+                    <circle cx="276" cy="234" r="5"/><circle cx="338" cy="245" r="5"/><circle cx="400" cy="252" r="5"/>
+                    <circle cx="462" cy="259" r="5"/><circle cx="524" cy="264" r="5"/><circle cx="586" cy="268" r="5"/><circle cx="648" cy="272" r="5"/>
+                </g>
+                <line x1="214" y1="216" x2="214" y2="320" stroke="#d06d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
+                <line x1="90" y1="216" x2="214" y2="216" stroke="#d06d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
+                <circle cx="214" cy="216" r="7" fill="none" stroke="#d06d4d" stroke-width="2.5"/>
+                <text x="224" y="240" font-size="13" fill="#b45309" font-weight="600">肘部 K = 3</text>
+                <text x="300" y="300" font-size="12" fill="#64748b">肘部之后下降变缓</text>
+            </svg>
+            <figcaption>图 16-1　肘部法则：纵轴 WCSS 随 K 单调递减，拐点（此处 K = 3）前后下降速率差异明显。曲线为教学示意，真实数据的肘部可能不够尖锐。</figcaption>
+        </figure>
+
         <h3>轮廓系数 (Silhouette Coefficient)</h3>
         <p>轮廓系数同时考虑了簇内紧致度和簇间分离度。它的计算步骤如下：</p>
 
@@ -134,7 +184,8 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 
         <pre><code># 轮廓系数的含义
 # s(i) 的范围：[-1, 1]
-# s(i) ≈ 1  → 样本被很好地聚类（远离其他簇）
+# s(i) ≈ 1  → 很好地聚类
+#            （远离其他簇）
 # s(i) ≈ 0  → 样本位于两个簇的边界上
 # s(i) &lt; 0  → 样本可能被分错了簇
 
@@ -167,7 +218,8 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 
 1. 随机选择 K 个样本作为初始 medoids
 2. 将每个样本分配到离它最近的 medoid
-3. 对每个 medoid m，考虑每个非 medoid 样本 o：
+3. 对每个 medoid m，考虑每个
+   非 medoid 样本 o：
    - 交换 m 和 o，重新分配样本
    - 如果总损失降低，则执行交换
 4. 重复步骤 3 直到不再有交换发生
@@ -205,7 +257,8 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
 1. 对每个点 p：
    - 找出其 eps 邻域内的所有点 N(p)
    - 如果 |N(p)| ≥ minPts，p 标记为核心点
-2. 将所有相互可达（通过核心点链连接）的核心点归为同一个簇
+2. 将所有相互可达的核心点
+   （通过核心点链连接）归为同一个簇
 3. 将边界点分配到它所属的核心点所在的簇
 4. 噪声点不分配簇标签
 
@@ -265,7 +318,7 @@ J = Σ_{k=1}^{K} Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
             <a href="index.html">📖 返回目录</a>
             <a href="17.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
