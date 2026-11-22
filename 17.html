@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,14 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第17章　判别分析：距离与Bayes判别</h1>
+            <p class="article-meta">距离判别 · 线性判别分析 · QDA · Bayes 判别规则</p>
+        </header>
+
 
         <h2>开篇：从"物以类聚"到"按类识别"</h2>
 
@@ -76,7 +83,8 @@
         <p>假设有 K 个类，每个类的中心是 μₖ（通常用训练样本的均值估计）。对于一个新样本 x，计算它到每个类中心的欧氏距离：</p>
 
         <pre><code># 最小距离分类器 (欧氏距离)
-dₖ(x) = ||x - μₖ||² = (x - μₖ)ᵀ(x - μₖ)
+dₖ(x) = ||x - μₖ||²
+      = (x - μₖ)ᵀ(x - μₖ)
 
 # 预测类别 = argmin_k dₖ(x)
 
@@ -92,16 +100,19 @@ dₖ(x) = ||x - μₖ||² = (x - μₖ)ᵀ(x - μₖ)
         <pre><code># 马氏距离分类器
 dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
 
-# 其中 Σ 是合并协方差矩阵（所有类共用一个协方差矩阵）
+# 其中 Σ 是合并协方差矩阵
+# （所有类共用一个协方差矩阵）
 # 或者各类分别用各自的协方差矩阵 Σₖ
 
 # 展开来看：
 # dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
-#         = xᵀΣ⁻¹x - 2xᵀΣ⁻¹μₖ + μₖᵀΣ⁻¹μₖ
+#  = xᵀΣ⁻¹x - 2xᵀΣ⁻¹μₖ
+#    + μₖᵀΣ⁻¹μₖ
 #         = 常数 + 线性项 xᵀΣ⁻¹μₖ
 
 # 忽略与 class 无关的 xᵀΣ⁻¹x 项：
-# 判别函数 δₖ(x) = xᵀΣ⁻¹μₖ - (1/2)μₖᵀΣ⁻¹μₖ
+# 判别函数 δₖ(x) = xᵀΣ⁻¹μₖ
+#   - (1/2)μₖᵀΣ⁻¹μₖ
 # 预测类别 = argmax_k δₖ(x)</code></pre>
 
         <p>马氏距离分类器在数学上等价于<strong>线性判别分析 (LDA)</strong>，前提是假设各类的协方差矩阵相等。在下一节我们会更详细地推导这一点。</p>
@@ -112,6 +123,33 @@ dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
 
         <h2>线性判别分析（LDA）</h2>
 
+        <figure>
+            <svg viewBox="0 0 720 380" role="img" aria-labelledby="f17-title f17-desc">
+                <title id="f17-title">Fisher 线性判别的投影方向与判别边界</title>
+                <desc id="f17-desc">两个二维类别（蓝、橙）各自成团。虚线连接两类的中心，是 Fisher 投影方向；与它垂直的实线是判别边界（超平面），把平面分成两块，两侧的样本被判为不同类别。</desc>
+                <rect width="720" height="380" fill="#fafafe"/>
+                <line x1="180" y1="300" x2="560" y2="110" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="7 5"/>
+                <line x1="300" y1="330" x2="430" y2="70" stroke="#1f2937" stroke-width="2.5"/>
+                <g fill="#0ea5e9">
+                    <circle cx="200" cy="290" r="7"/><circle cx="220" cy="265" r="7"/><circle cx="235" cy="285" r="7"/>
+                    <circle cx="250" cy="260" r="7"/><circle cx="265" cy="280" r="7"/><circle cx="210" cy="250" r="7"/>
+                    <circle cx="255" cy="300" r="7"/><circle cx="275" cy="265" r="7"/>
+                </g>
+                <g fill="#d06d4d">
+                    <circle cx="445" cy="165" r="7"/><circle cx="465" cy="140" r="7"/><circle cx="480" cy="160" r="7"/>
+                    <circle cx="495" cy="130" r="7"/><circle cx="510" cy="155" r="7"/><circle cx="455" cy="120" r="7"/>
+                    <circle cx="500" cy="175" r="7"/><circle cx="520" cy="145" r="7"/>
+                </g>
+                <circle cx="238" cy="274" r="5" fill="#0369a1"/>
+                <circle cx="484" cy="148" r="5" fill="#9a3412"/>
+                <text x="150" y="230" font-size="14" fill="#0e7490" font-weight="600">类 1</text>
+                <text x="540" y="200" font-size="14" fill="#b45309" font-weight="600">类 2</text>
+                <text x="190" y="330" font-size="12" fill="#64748b">虚线：投影方向 a（类中心连线）</text>
+                <text x="440" y="320" font-size="12" fill="#1f2937">实线：判别边界（超平面）</text>
+            </svg>
+            <figcaption>图 17-1　Fisher LDA 的几何：找一个投影方向 a 使两类中心尽量分开、类内散布尽量小；与 a 垂直的超平面即判别边界。左蓝右橙为教学示意数据。</figcaption>
+        </figure>
+
         <p><strong>线性判别分析 (Linear Discriminant Analysis, LDA)</strong> 是判别分析中最经典的方法。费希尔提出的版本是从一个几何问题出发——"找一个投影方向，使得投影后各类的均值尽可能分开、同时各类内部的散布尽可能小"。这个思想后来被称为 <strong>Fisher's LDA</strong>。</p>
 
         <p>Fisher 的优化目标可以表达为"最大化瑞利商"：</p>
@@ -119,26 +157,51 @@ dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
         <pre><code># Fisher LDA 的目标：最大化广义瑞利商
 max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 
-# S_B = 类间散布矩阵 (between-class scatter)
-# S_W = 类内散布矩阵 (within-class scatter)
+# S_B = 类间散布矩阵
+#       (between-class scatter)
+# S_W = 类内散布矩阵
+#       (within-class scatter)
 # a = 投影向量
 
 # S_B = Σₖ nₖ (μₖ - μ)(μₖ - μ)ᵀ
-# S_W = Σₖ Σ_{i∈Cₖ} (xᵢ - μₖ)(xᵢ - μₖ)ᵀ
+# S_W = Σₖ Σ_{i∈Cₖ}(xᵢ-μₖ)(xᵢ-μₖ)ᵀ
 
-# 解：a 是 S_W⁻¹ S_B 的最大特征值对应的特征向量</code></pre>
+# 解：a 是 S_W⁻¹ S_B 的最大
+#     特征值对应的特征向量</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Fisher 判别的广义瑞利商目标，可横向滚动">
+                <math display="block" aria-label="Fisher 判别最大化目标 J a 等于 a 转置乘类间散布矩阵 S 下标 B 再乘 a，除以 a 转置乘类内散布矩阵 S 下标 W 再乘 a">
+                    <mrow>
+                        <munder><mo>max</mo><mi>a</mi></munder>
+                        <mi>J</mi><mo>(</mo><mi>a</mi><mo>)</mo><mo>=</mo>
+                        <mfrac>
+                            <mrow><msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>S</mi><mi>B</mi></msub><mi>a</mi></mrow>
+                            <mrow><msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>S</mi><mi>W</mi></msub><mi>a</mi></mrow>
+                        </mfrac>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (17.1)　Fisher 判别准则：最大化类间散布与类内散布之比，解 a 为 S_W⁻¹S_B 的最大特征向量；它等价于先对类内“白化”再取一维投影。</p>
+        </div>
 
         <p>当只有两个类别时，Fisher LDA 的判别函数是线性的：一条直线（在二维空间中）或一个超平面（在高维空间中）将特征空间分成两部分。</p>
 
         <p>在 LDA 的统计学框架下（各类服从多元正态分布，且协方差矩阵相等），判别函数有简洁的线性形式：</p>
 
         <pre><code># LDA 判别函数（二分类）
-δ₁(x) = xᵀΣ⁻¹μ₁ - (1/2)μ₁ᵀΣ⁻¹μ₁ + ln(π₁)
-δ₂(x) = xᵀΣ⁻¹μ₂ - (1/2)μ₂ᵀΣ⁻¹μ₂ + ln(π₂)
+δ₁(x) = xᵀΣ⁻¹μ₁ - (1/2)μ₁ᵀΣ⁻¹μ₁
+        + ln(π₁)
+δ₂(x) = xᵀΣ⁻¹μ₂ - (1/2)μ₂ᵀΣ⁻¹μ₂
+        + ln(π₂)
 
-# 分类规则：如果 δ₁(x) > δ₂(x)，判为类1，否则判为类2
-# 决策边界（令 δ₁(x) = δ₂(x)）是一个超平面：
-# xᵀΣ⁻¹(μ₁ - μ₂) = (1/2)(μ₁ᵀΣ⁻¹μ₁ - μ₂ᵀΣ⁻¹μ₂) + ln(π₂/π₁)
+# 分类规则：若 δ₁(x) > δ₂(x)
+# 判为类 1，否则判为类 2
+# 决策边界（令 δ₁(x) = δ₂(x)）
+# 是一个超平面：
+# xᵀΣ⁻¹(μ₁ - μ₂) =
+#   (1/2)(μ₁ᵀΣ⁻¹μ₁ - μ₂ᵀΣ⁻¹μ₂)
+#   + ln(π₂/π₁)
 
 # 其中 πₖ 是第 k 类的先验概率</code></pre>
 
@@ -151,15 +214,19 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
         <p>QDA 允许每个类别有自己的协方差矩阵 Σₖ。判别函数变为：</p>
 
         <pre><code># QDA 判别函数
-δₖ(x) = -(1/2)ln|Σₖ| - (1/2)(x-μₖ)ᵀΣₖ⁻¹(x-μₖ) + ln(πₖ)
+δₖ(x) = -(1/2)ln|Σₖ|
+        - (1/2)(x-μₖ)ᵀΣₖ⁻¹(x-μₖ)
+        + ln(πₖ)
 
-# 去掉二次项后的决策边界是二次曲面（椭圆、抛物线等）
+# 去掉二次项后的决策边界
+# 是二次曲面（椭圆、抛物线等）
 # 分类规则：argmax_k δₖ(x)
 
 # QDA 和 LDA 对比：
-# LDA：p 个变量，待估参数数 ≈ Kp + p(p+1)/2
-# QDA：p 个变量，待估参数数 ≈ Kp + K·p(p+1)/2
-# QDA 的参数是 LDA 的约 K 倍，需要更多训练数据</code></pre>
+# LDA：p 个变量，参数数 ≈ Kp + p(p+1)/2
+# QDA：p 个变量，参数数 ≈ Kp + K·p(p+1)/2
+# QDA 参数是 LDA 的约 K 倍
+# 需要更多训练数据</code></pre>
 
         <table>
             <tr><th>维度</th><th>LDA</th><th>QDA</th></tr>
@@ -183,16 +250,19 @@ P(类k | x) = P(x | 类k) · P(类k) / P(x)
 
 # 其中：
 # P(类k) = πₖ 是第 k 类的先验概率
-# P(x | 类k) = fₖ(x) 是第 k 类的类条件密度
-# P(x) = Σⱼ fⱼ(x)πⱼ 是边缘密度（归一化常数）
+# P(x|类k) = fₖ(x)：第 k 类的类条件密度
+# P(x) = Σⱼ fⱼ(x)πⱼ 是边缘密度
+# （归一化常数）
 
 # 贝叶斯分类规则：
 # 选择后验概率最大的类
 # 等价于选择 fₖ(x)πₖ 最大的类
 
 # 如果 fₖ(x) 取多元正态密度 N(μₖ, Σₖ)：
-# fₖ(x) = (1/((2π)^{p/2}|Σₖ|^{1/2})) exp(-(1/2)(x-μₖ)ᵀΣₖ⁻¹(x-μₖ))
-# 代入取对数，去掉常数项，就得到了 LDA 或 QDA 的判别函数</code></pre>
+# fₖ(x) = (1/((2π)^{p/2}|Σₖ|^{1/2}))
+#   · exp(-(1/2)(x-μₖ)ᵀΣₖ⁻¹(x-μₖ))
+# 代入取对数，去掉常数项
+# 就得到 LDA / QDA 的判别函数</code></pre>
 
         <p>贝叶斯框架的优雅之处在于它自然地将<strong>先验知识</strong>和<strong>错分代价</strong>纳入了分类决策：</p>
 
@@ -235,8 +305,11 @@ P(类k | x) = P(x | 类k) · P(类k) / P(x)
 
         <pre><code>import numpy as np
 import pandas as pd
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
-from sklearn.model_selection import cross_val_score
+from sklearn.discriminant_analysis import (
+    LinearDiscriminantAnalysis,
+    QuadraticDiscriminantAnalysis)
+from sklearn.model_selection import (
+    cross_val_score)
 from sklearn.datasets import load_iris
 
 # 加载数据
@@ -245,18 +318,24 @@ X, y = iris.data, iris.target
 
 # LDA 分类
 lda = LinearDiscriminantAnalysis()
-lda_scores = cross_val_score(lda, X, y, cv=10)  # 10折交叉验证
-print(f"LDA 平均准确率: {lda_scores.mean():.3f}")
+lda_scores = cross_val_score(
+    lda, X, y, cv=10)   # 10 折交叉验证
+print(f"LDA 平均准确率: "
+      f"{lda_scores.mean():.3f}")
 
 # QDA 分类
 qda = QuadraticDiscriminantAnalysis()
-qda_scores = cross_val_score(qda, X, y, cv=10)
-print(f"QDA 平均准确率: {qda_scores.mean():.3f}")
+qda_scores = cross_val_score(
+    qda, X, y, cv=10)
+print(f"QDA 平均准确率: "
+      f"{qda_scores.mean():.3f}")
 
 # 查看 LDA 的判别函数系数
 lda.fit(X, y)
-print(f"判别函数个数: {lda.n_components}")  # 最多 K-1 = 2 个
-print(f"第一个判别函数的系数: {lda.coef_[0]}")</code></pre>
+print(f"判别函数个数: {lda.n_components}")
+# 最多 K-1 = 2 个
+print(f"第一个判别函数的系数: "
+      f"{lda.coef_[0]}")</code></pre>
 
         <p>通常情况下，LDA 和 QDA 在 iris 数据上都能达到 97% 以上的准确率——因为三个物种在花瓣维度上分离得很好。唯一的混淆发生在 versicolor 和 virginica 之间，两者有少量重叠区域。</p>
 
@@ -283,7 +362,7 @@ print(f"第一个判别函数的系数: {lda.coef_[0]}")</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="18.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
