@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html" class="active">第01章 多元统计分析概述</a></li>
@@ -41,10 +42,15 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
 
-        <h2>开篇：你已经被"多维"包围了</h2>
+        <header class="article-header">
+            <h1>第01章　多元统计分析概述</h1>
+            <p class="article-meta">开篇 · 从一元统计到多元统计 · 发展历程、应用领域与方法分类</p>
+        </header>
+
+        <h2>开篇：你已经被“多维”包围了</h2>
 
         <p>大家好，欢迎来到多元统计分析课程。在开始之前，我想请大家做一个小小的思想实验：你现在掏出手机，打开任何一个电商App搜索一件商品——搜索结果页面上有多少个信息维度？商品标题、价格、销量、评分、评论数、店铺信誉、发货地、优惠券金额、视频预览、相似推荐……随便一数就是十几个。平台背后的人工智能系统同时处理着成百上千个这样的维度，从亿万用户的行为数据中找出"你可能会喜欢的商品"。这就是我们今天要学的——<strong>多元统计分析 (Multivariate Statistical Analysis)</strong>——处理多维数据的数学工具集。</p>
 
@@ -75,6 +81,43 @@ X = ⎡ x₁₁  x₁₂  ...  x₁ₚ ⎤
         <div class="highlight">
             <strong>核心洞见：</strong>多元统计与一元统计的根本区别不在于"数据多了几列"，而在于分析视角的转变——从"变量独立地看"到"变量联合地看"。协方差矩阵 (covariance matrix) 是贯穿整门课程的最重要的概念之一，它记录了每个变量的方差以及变量两两之间的协方差。
         </div>
+
+        <figure>
+            <svg viewBox="0 0 800 360" role="img" aria-labelledby="f1-title f1-desc">
+                <title id="f1-title">一元视角与多元视角的对比</title>
+                <desc id="f1-desc">左图把身高与体重看成两条彼此独立的一元分布；右图把每个样本画成二维平面上的一个点，点云沿斜向延伸，可用一个协方差椭圆概括其联合结构与正相关。</desc>
+                <rect width="800" height="360" fill="#fafafe"/>
+                <line x1="390" y1="26" x2="390" y2="332" stroke="#d8d5ec" stroke-dasharray="6 6"/>
+                <text x="70" y="30" font-size="15" fill="#4c1d95" font-weight="600">一元：每个变量各看一条分布</text>
+                <text x="80" y="108" font-size="13" fill="#5b21b6">X₁ 身高</text>
+                <line x1="70" y1="120" x2="360" y2="120" stroke="#8b5cf6" stroke-width="2"/>
+                <g fill="#c4b5fd">
+                    <rect x="90" y="102" width="36" height="18"/><rect x="136" y="82" width="36" height="38"/>
+                    <rect x="182" y="66" width="36" height="54"/><rect x="228" y="78" width="36" height="42"/>
+                    <rect x="274" y="94" width="36" height="26"/><rect x="320" y="108" width="36" height="12"/>
+                </g>
+                <text x="80" y="248" font-size="13" fill="#5b21b6">X₂ 体重</text>
+                <line x1="70" y1="260" x2="360" y2="260" stroke="#0ea5e9" stroke-width="2"/>
+                <g fill="#bae6fd">
+                    <rect x="90" y="248" width="36" height="12"/><rect x="136" y="234" width="36" height="26"/>
+                    <rect x="182" y="212" width="36" height="48"/><rect x="228" y="214" width="36" height="46"/>
+                    <rect x="274" y="230" width="36" height="30"/><rect x="320" y="246" width="36" height="14"/>
+                </g>
+                <text x="430" y="30" font-size="15" fill="#4c1d95" font-weight="600">多元：每个样本是一个点</text>
+                <line x1="440" y1="66" x2="440" y2="300" stroke="#94a3b8"/>
+                <line x1="440" y1="300" x2="744" y2="300" stroke="#94a3b8"/>
+                <text x="728" y="320" font-size="13" fill="#5b21b6">X₁</text>
+                <text x="416" y="86" font-size="13" fill="#0e7490">X₂</text>
+                <ellipse cx="590" cy="178" rx="112" ry="40" transform="rotate(-40 590 178)" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="7 5"/>
+                <g fill="#7c3aed">
+                    <circle cx="500" cy="231" r="5"/><circle cx="515" cy="249" r="5"/><circle cx="530" cy="213" r="5"/>
+                    <circle cx="545" cy="231" r="5"/><circle cx="560" cy="185" r="5"/><circle cx="575" cy="203" r="5"/>
+                    <circle cx="590" cy="173" r="5"/><circle cx="605" cy="185" r="5"/><circle cx="620" cy="150" r="5"/>
+                    <circle cx="635" cy="162" r="5"/><circle cx="650" cy="127" r="5"/><circle cx="665" cy="144" r="5"/><circle cx="680" cy="116" r="5"/>
+                </g>
+            </svg>
+            <figcaption>图 1-1　一元统计分别查看每个变量的边缘分布（左）；多元统计把每个样本看作 p 维空间中的一个点，联合分布的形状（右）由协方差矩阵决定。图中点云为教学示意，非真实测量数据。</figcaption>
+        </figure>
 
         <h2>发展历程</h2>
 
@@ -132,6 +175,21 @@ S = (1/(n-1)) Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ
 # S 的对角线元素是各变量的方差
 # S 的非对角线元素是变量间的协方差
 # 例如 S₁₂ 表示第1个变量与第2个变量的协方差</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="样本协方差矩阵公式，可横向滚动">
+                <math display="block" aria-label="样本协方差矩阵 S 等于 n 减 1 分之 1，乘以各样本离差列向量与其转置的外积之和">
+                    <mrow>
+                        <mi>S</mi><mo>=</mo>
+                        <mfrac><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></mfrac>
+                        <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+                        <mo>(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>)</mo>
+                        <msup><mrow><mo>(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>)</mo></mrow><mo>⊤</mo></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (1.1)　样本协方差矩阵（p × p，对称）：对角线元素是各变量方差，非对角线元素是变量两两的协方差。正定、可逆是后续 T² 检验与马氏距离的前提。</p>
+        </div>
 
         <h3>假设检验框架</h3>
         <p>多元假设检验是一元 t 检验的自然推广。比如要检验 p 个变量的均值是否全部为零，不能每个变量单独做 t 检验（否则又遇到多重比较问题），而是要用<strong>霍特林 T² 检验</strong>——它在 p 维空间中一次性检验均值向量的整体偏移。我们将在第4章详细讨论。</p>
@@ -227,7 +285,7 @@ S = (1/(n-1)) Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ
             <a href="index.html">📖 返回目录</a>
             <a href="02.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
