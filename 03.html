@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,14 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第03章　多元正态分布</h1>
+            <p class="article-meta">定义与性质 · 条件分布 · 极大似然估计 · Wishart 分布</p>
+        </header>
+
 
         <h2>为什么正态分布无处不在？</h2>
 
@@ -52,7 +59,31 @@
 
         <p>一个 p 维随机向量 X 服从均值为 μ、协方差矩阵为 Σ 的多元正态分布，记作 X ~ N<sub>p</sub>(μ, Σ)，其概率密度函数为：</p>
 
-        <pre><code>f(x) = (2π)^{-p/2} |Σ|^{-1/2} exp(-½ (x - μ)ᵀ Σ⁻¹ (x - μ))</code></pre>
+        <pre><code>f(x) = (2π)^{-p/2} |Σ|^{-1/2}
+       exp(-½ (x - μ)ᵀ Σ⁻¹ (x - μ))</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="多元正态密度公式，可横向滚动">
+                <math display="block" aria-label="多元正态密度 f x 等于 2π 的负 p 比 2 次方乘 Σ 行列式的负 1 比 2 次方，再乘 exp 括号内负二分之一乘 x 减 μ 的转置乘 Σ 逆乘 x 减 μ">
+                    <mtable>
+                        <mtr><mtd>
+                            <mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>=</mo>
+                            <msup><mrow><mo>(</mo><mn>2</mn><mi>π</mi><mo>)</mo></mrow><mrow><mo>−</mo><mi>p</mi><mo>/</mo><mn>2</mn></mrow></msup>
+                            <msup><mrow><mo>|</mo><mi>Σ</mi><mo>|</mo></mrow><mrow><mo>−</mo><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup>
+                            <mi>exp</mi>
+                        </mtd></mtr>
+                        <mtr><mtd>
+                            <mrow><mo>(</mo><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac>
+                                <msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo>)</mo></mrow><mo>⊤</mo></msup>
+                                <msup><mi>Σ</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup>
+                                <mrow><mo>(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><mo>)</mo></mrow>
+                            <mo>)</mo></mrow>
+                        </mtd></mtr>
+                    </mtable>
+                </math>
+            </div>
+            <p class="math-caption">式 (3.1)　指数部分的 (x − μ)ᵀΣ⁻¹(x − μ) 正是马氏距离的平方；Σ 决定等高线的方向（特征向量）与长短（特征值）。</p>
+        </div>
 
         <p>这个公式看起来很复杂，但我们来拆解一下：</p>
         <ul>
@@ -68,6 +99,35 @@
         <div class="highlight">
             <strong>几何直觉：</strong>想象 p=2 的情况。标准二元正态分布的密度函数像一个钟形曲面，其等高线是同心圆。如果 Σ 不是单位矩阵（比如变量间有相关性），等高线就变成了椭圆。椭圆轴的方向由 Σ 的特征向量决定，轴的长度由特征值决定。这个"椭圆"的几何直觉，就是理解 PCA 的关键！
         </div>
+
+        <figure>
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f3-title f3-desc">
+                <title id="f3-title">二元正态密度的等高线：不相关与相关</title>
+                <desc id="f3-desc">左图：协方差矩阵为单位阵时，二元正态的密度等高线是同心圆，各方向变异相同。右图：变量正相关时，等高线是沿相关方向拉长的椭圆，长轴方向由最大特征向量决定，半轴长度正比于特征值的平方根。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <text x="60" y="40" font-size="15" fill="#0e7490" font-weight="600">Σ = I：等高线为同心圆</text>
+                <line x1="80" y1="200" x2="360" y2="200" stroke="#cbd5e1"/>
+                <line x1="220" y1="90" x2="220" y2="320" stroke="#cbd5e1"/>
+                <g fill="none" stroke="#0ea5e9" stroke-width="2">
+                    <circle cx="220" cy="200" r="40"/><circle cx="220" cy="200" r="80"/><circle cx="220" cy="200" r="120"/>
+                </g>
+                <circle cx="220" cy="200" r="5" fill="#0e7490"/>
+                <text x="226" y="196" font-size="14" fill="#0e7490" font-weight="600">μ</text>
+                <line x1="420" y1="40" x2="420" y2="340" stroke="#d8d5ec" stroke-dasharray="6 6"/>
+                <text x="470" y="40" font-size="15" fill="#6d28d9" font-weight="600">相关 Σ：等高线为椭圆</text>
+                <line x1="470" y1="200" x2="730" y2="200" stroke="#cbd5e1"/>
+                <line x1="600" y1="90" x2="600" y2="320" stroke="#cbd5e1"/>
+                <g fill="none" stroke="#7c3aed" stroke-width="2">
+                    <ellipse cx="600" cy="200" rx="118" ry="44" transform="rotate(-32 600 200)"/>
+                    <ellipse cx="600" cy="200" rx="78" ry="29" transform="rotate(-32 600 200)"/>
+                    <ellipse cx="600" cy="200" rx="38" ry="14" transform="rotate(-32 600 200)"/>
+                </g>
+                <line x1="530" y1="245" x2="670" y2="155" stroke="#d06d4d" stroke-width="2.5"/>
+                <circle cx="600" cy="200" r="5" fill="#6d28d9"/>
+                <text x="672" y="152" font-size="13" fill="#b45309">长轴（最大特征向量）</text>
+            </svg>
+            <figcaption>图 3-1　二元正态的几何：等高线（密度等值线）的形状完全由协方差矩阵 Σ 决定——不相关为圆，相关为倾斜椭圆；长轴方向即 PCA 的第一主成分方向。图为教学示意。</figcaption>
+        </figure>
 
         <h2>重要性质</h2>
 
@@ -107,8 +167,10 @@ X₂ ~ N(μ₂, Σ₂₂)</code></pre>
         <pre><code>X₁ | X₂ = x₂  ~  N(μ₁|₂, Σ₁|₂)
 
 其中：
-条件均值：μ₁|₂ = μ₁ + Σ₁₂Σ₂₂⁻¹ (x₂ - μ₂)
-条件协方差：Σ₁|₂ = Σ₁₁ - Σ₁₂Σ₂₂⁻¹ Σ₂₁</code></pre>
+条件均值：
+  μ₁|₂ = μ₁ + Σ₁₂Σ₂₂⁻¹ (x₂ - μ₂)
+条件协方差：
+  Σ₁|₂ = Σ₁₁ - Σ₁₂Σ₂₂⁻¹ Σ₂₁</code></pre>
 
         <p>这组公式在多元统计中怎么强调都不过分。让我们仔细看看：</p>
         <ul>
@@ -118,7 +180,8 @@ X₂ ~ N(μ₂, Σ₂₂)</code></pre>
 
         <p>从条件协方差公式，我们可以引出<strong>偏相关系数 (partial correlation coefficient)</strong>。偏相关系数衡量的是在消除其他变量影响后，两个变量之间的"净"相关关系。简单相关系数可能因为共同影响者而呈现虚假的相关——比如"冰淇淋销量"和"溺水人数"高度正相关，但控制"气温"这个变量后，两者的偏相关系数接近零。偏相关系数可以从 Σ₁|₂ 中提取：</p>
 
-        <pre><code>ρ_{ij·其余} = - (Σ₁|₂)_{ij} / sqrt((Σ₁|₂)_{ii} (Σ₁|₂)_{jj})</code></pre>
+        <pre><code>ρ_{ij·其余} = - (Σ₁|₂)_{ij}
+   / sqrt((Σ₁|₂)_{ii} (Σ₁|₂)_{jj})</code></pre>
 
         <p>或者等价地，从精度矩阵（协方差矩阵的逆）中直接得到。用 . 后面的变量表示"控制了哪些变量"。</p>
 
@@ -132,11 +195,14 @@ X₂ ~ N(μ₂, Σ₂₂)</code></pre>
 
         <p>极大似然估计 (MLE) 的结果非常直观：</p>
 
-        <pre><code>μ̂ = x̄ = (1/n) Σᵢ₌₁ⁿ xᵢ         （样本均值向量）
+        <pre><code>μ̂ = x̄ = (1/n) Σᵢ₌₁ⁿ xᵢ
+        （样本均值向量）
 
-Σ̂ = (1/n) Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ  （有偏估计）
+Σ̂ = (1/n) Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ
+        （有偏估计）
 
-无偏估计：S = (1/(n-1)) Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ</code></pre>
+无偏估计：
+  S = Σᵢ₌₁ⁿ (xᵢ - x̄)(xᵢ - x̄)ᵀ / (n-1)</code></pre>
 
         <p>其中：</p>
         <ul>
@@ -147,11 +213,14 @@ X₂ ~ N(μ₂, Σ₂₂)</code></pre>
         </ul>
 
         <p>估计量的<strong>抽样分布</strong>：</p>
-        <pre><code>x̄ ~ N(μ, Σ/n)            （均值估计的精度随 n 增大而提高）
+        <pre><code>x̄ ~ N(μ, Σ/n)
+  （均值估计的精度随 n 增大而提高）
 
-(n-1)S ~ W_p(n-1, Σ)     （S 的分布是 Wishart 分布）
+(n-1)S ~ W_p(n-1, Σ)
+  （S 的分布是 Wishart 分布）
 
-x̄ 和 S 是独立的          （这个性质在构建检验统计量时至关重要）</code></pre>
+x̄ 和 S 是独立的
+  （构建检验统计量时至关重要）</code></pre>
 
         <div class="warning">
             <strong>数值隐患：</strong>当 p 接近 n 时，样本协方差矩阵 S 的估计误差会非常大。当 p > n 时，S 是奇异的——我们已经在上章末尾的踩坑故事中体验过这一点了。实际问题中，统计学家们建议 n/p 至少大于 5，甚至 10，S 才比较可靠。如果达不到，就需要考虑正则化或收缩估计方法。
@@ -223,7 +292,7 @@ x̄ 和 S 是独立的          （这个性质在构建检验统计量时至关
             <a href="index.html">📖 返回目录</a>
             <a href="04.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
