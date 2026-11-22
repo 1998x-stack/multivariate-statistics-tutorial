@@ -271,18 +271,54 @@
     </style>
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="container">
-    <div class="header">
-        <h1><span class="emoji"></span><span class="title-text"></span></h1>
-        <div class="sub"></div>
-    </div>
+    <header class="header">
+        <h1><span class="emoji">📊</span><span class="title-text">多元统计分析 · 从入门到精通</span></h1>
+        <p class="sub">28章 实战体系</p>
+    </header>
 
-    <div id="cardContainer" class="course-grid"></div>
+    <main id="content">
+        <section aria-labelledby="path-h">
+            <h2 id="path-h">学习路径</h2>
+            <figure>
+                <svg viewBox="0 0 900 220" role="img" aria-labelledby="idx-title idx-desc">
+                    <title id="idx-title">本课程的三个阶段</title>
+                    <desc id="idx-desc">学习路径分三段：第 01 至 07 章打数学地基，第 08 至 22 章详解五大核心方法，第 23 至 28 章进入 R/Python 实战与前沿案例。</desc>
+                    <rect width="900" height="220" fill="#fafafe"/>
+                    <text x="30" y="46" font-size="14" fill="#6b7280">从矩阵与正态分布，到降维/聚类/判别，再到可按章运行的代码</text>
+                    <rect x="30" y="66" width="240" height="100" rx="16" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2"/>
+                    <text x="150" y="106" text-anchor="middle" font-size="16" fill="#4c1d95" font-weight="600">第一阶段</text>
+                    <text x="150" y="132" text-anchor="middle" font-size="13" fill="#5b21b6">第 01–07 章 · 数学地基</text>
+                    <rect x="330" y="66" width="240" height="100" rx="16" fill="#e0f2fe" stroke="#7dd3fc" stroke-width="2"/>
+                    <text x="450" y="106" text-anchor="middle" font-size="16" fill="#0c4a6e" font-weight="600">第二阶段</text>
+                    <text x="450" y="132" text-anchor="middle" font-size="13" fill="#0e7490">第 08–22 章 · 五大核心方法</text>
+                    <rect x="630" y="66" width="240" height="100" rx="16" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+                    <text x="750" y="106" text-anchor="middle" font-size="16" fill="#14532d" font-weight="600">第三阶段</text>
+                    <text x="750" y="132" text-anchor="middle" font-size="13" fill="#15803d">第 23–28 章 · 实战与前沿</text>
+                    <g stroke="#94a3b8" stroke-width="2" fill="#94a3b8">
+                        <line x1="278" y1="116" x2="316" y2="116"/><polygon points="316,110 330,116 316,122"/>
+                        <line x1="578" y1="116" x2="616" y2="116"/><polygon points="616,110 630,116 616,122"/>
+                    </g>
+                </svg>
+                <figcaption>图 1　课程的三段式学习路径：先补数学地基，再逐一吃透五大方法，最后用 R/Python 跑通真实案例。</figcaption>
+            </figure>
+        </section>
 
-    <div style="text-align:center;">
-        <div class="footer"></div>
-    </div>
+        <section aria-labelledby="toc-h">
+            <h2 id="toc-h">章节目录</h2>
+            <nav aria-label="章节目录">
+                <div id="cardContainer" class="course-grid"></div>
+            </nav>
+        </section>
+    </main>
+
+    <footer style="text-align:center;">
+        <div class="footer">28章 实战体系 · 从入门到精通</div>
+    </footer>
 </div>
+
+<script type="application/json" id="courses-data">{"title":"多元统计分析 · 从入门到精通","emoji":"📊","subtitle":"📘 28章 实战体系","chapterCount":28,"chapters":[{"num":"01","title":"多元统计分析概述","topics":["发展历史","应用领域","基本概念","软件工具链"],"file":"01.html"},{"num":"02","title":"矩阵基础与随机向量","topics":["矩阵运算","特征值分解","随机向量","均值与协方差"],"file":"02.html"},{"num":"03","title":"多元正态分布","topics":["定义与性质","条件分布","极大似然估计","Wishart分布"],"file":"03.html"},{"num":"04","title":"均值向量与协方差检验","topics":["Hotelling T²","Wilks Λ","Box's M检验","Profile分析"],"file":"04.html"},{"num":"05","title":"数据预处理与可视化","topics":["缺失值处理","标准化","异常值检测","散点图矩阵"],"file":"05.html"},{"num":"06","title":"距离与相似度度量","topics":["欧氏距离","马氏距离","余弦相似度","相关系数"],"file":"06.html"},{"num":"07","title":"多元回归基础","topics":["多元线性回归","多重共线性","变量选择","Ridge与LASSO"],"file":"07.html"},{"num":"08","title":"主成分分析：原理与几何解释","topics":["最大方差投影","特征值分解","主成分几何意义","累计方差贡献率"],"file":"08.html"},{"num":"09","title":"PCA的实战流程","topics":["KMO检验","Bartlett球形检验","Scree图","载荷矩阵"],"file":"09.html"},{"num":"10","title":"PCA的进阶应用","topics":["高维数据","核PCA","稀疏PCA","图像压缩"],"file":"10.html"},{"num":"11","title":"因子分析：基本概念","topics":["因子模型","公因子与特殊因子","因子载荷","共同度"],"file":"11.html"},{"num":"12","title":"因子估计与旋转","topics":["主成分法","极大似然法","方差最大旋转","Promax旋转"],"file":"12.html"},{"num":"13","title":"因子得分与解释","topics":["回归法","Bartlett法","因子命名","案例解读"],"file":"13.html"},{"num":"14","title":"PCA与因子分析的比较","topics":["共同点与差异","适用场景","选择策略","典型踩坑"],"file":"14.html"},{"num":"15","title":"聚类分析：系统聚类法","topics":["层次聚类","类间距离度量","谱系图","cophenetic相关"],"file":"15.html"},{"num":"16","title":"聚类分析：动态聚类法","topics":["K-means","K-medoids","肘部法则","轮廓系数","DBSCAN"],"file":"16.html"},{"num":"17","title":"判别分析：距离与Bayes判别","topics":["距离判别","线性判别分析","QDA","Bayes判别规则"],"file":"17.html"},{"num":"18","title":"判别分析：Fisher判别与逐步判别","topics":["Fisher判别","典型判别函数","逐步判别","交叉验证"],"file":"18.html"},{"num":"19","title":"典型相关分析：原理","topics":["两组变量相关","典型变量","特征值求解","冗余指数"],"file":"19.html"},{"num":"20","title":"CCA的显著性检验与解释","topics":["Wilks Λ检验","典型相关系数","典型结构","实际案例"],"file":"20.html"},{"num":"21","title":"对应分析","topics":["列联表分析","行/列坐标","对应图解读","多重对应分析"],"file":"21.html"},{"num":"22","title":"多维标度法（MDS）","topics":["度量MDS","非度量MDS","应力系数","降维可视化"],"file":"22.html"},{"num":"23","title":"R语言实现多元分析","topics":["核心包","PCA与因子分析","聚类与判别","CCA实现"],"file":"23.html"},{"num":"24","title":"Python实现多元分析","topics":["scikit-learn","statsmodels","factor_analyzer","可视化"],"file":"24.html"},{"num":"25","title":"综合案例：市场细分实战","topics":["数据清洗","PCA降维","聚类分群","判别验证","CCA探索"],"file":"25.html"},{"num":"26","title":"高维数据的挑战与对策","topics":["维度诅咒","t-SNE","UMAP","Autoencoder降维"],"file":"26.html"},{"num":"27","title":"多元分析在大数据中的应用","topics":["分布式计算","流式聚类","增量PCA","大规模CCA"],"file":"27.html"},{"num":"28","title":"课程总结与项目实战","topics":["方法决策树","综合项目","常见错误","学习路径"],"file":"28.html"}]}</script>
 
 <script>
     (function() {
@@ -296,12 +332,12 @@
             container.innerHTML = '<div class="state-msg error">' + msg + '</div>';
         }
 
-        fetch('courses.json')
-            .then(function(res) {
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                return res.json();
-            })
-            .then(function(data) {
+        function loadFallback() {
+            var tag = document.getElementById('courses-data');
+            try { return JSON.parse(tag.textContent); } catch (e) { return null; }
+        }
+
+        function render(data) {
                 document.title = data.title + ' · 课程目录';
                 emojiEl.textContent = data.emoji;
                 titleEl.textContent = data.title;
@@ -354,9 +390,18 @@
 
                     container.appendChild(card);
                 });
+        }
+
+        fetch('courses.json')
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
             })
+            .then(render)
             .catch(function(err) {
-                showError('课程数据加载失败: ' + err.message + '。请刷新页面重试。');
+                var data = loadFallback();
+                if (data) { render(data); }
+                else { showError('课程数据加载失败: ' + err.message + '。若直接双击打开本页，请通过本地服务器访问。'); }
             });
     })();
 </script>
