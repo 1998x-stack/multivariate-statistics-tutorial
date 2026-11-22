@@ -26,6 +26,10 @@ body {
     gap: 0;
 }
 
+/* grid items default to min-width:auto and can force page-wide overflow */
+.container > * { min-width: 0; }
+.main-content { min-width: 0; overflow-wrap: anywhere; }
+
 /* === Sidebar === */
 .sidebar {
     background: #faf8ff;
