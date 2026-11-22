@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第08章　主成分分析：原理与几何解释</h1>
+            <p class="article-meta">最大方差投影 · 特征值分解 · 累计方差贡献率 · PCA 与 SVD</p>
+        </header>
 
         <h2>开篇：降维——从三维世界到二维屏幕</h2>
 
@@ -82,7 +88,7 @@
 
         <p>现在，投影的方差可以写成：</p>
 
-        <pre><code>Var(z₁) = Var(X w₁) = w₁ᵀ Cov(X) w₁ = w₁ᵀ Σ w₁
+        <pre><code>Var(z₁) = Var(X w₁) = w₁ᵀ Σ w₁
 
 Σ 是数据的协方差矩阵（p × p），目标是：
 最大化 w₁ᵀ Σ w₁
@@ -94,6 +100,22 @@ L = w₁ᵀ Σ w₁ - λ(w₁ᵀ w₁ - 1)
 对 w₁ 求导并令其为零：
 ∂L/∂w₁ = 2Σ w₁ - 2λ w₁ = 0
 ⇒ Σ w₁ = λ w₁</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="第一主成分的约束优化问题，可横向滚动">
+                <math display="block" aria-label="在 w 转置乘 w 等于 1 的约束下最大化 w 转置乘协方差矩阵西格玛乘 w，其解满足西格玛 w 等于 lambda 乘 w">
+                    <mrow>
+                        <munder><mo>max</mo><mi>w</mi></munder>
+                        <msup><mi>w</mi><mo>⊤</mo></msup><mi>Σ</mi><mi>w</mi>
+                        <mspace width="1.2em"/><mtext>s.t.</mtext><mspace width="0.4em"/>
+                        <msup><mi>w</mi><mo>⊤</mo></msup><mi>w</mi><mo>=</mo><mn>1</mn>
+                        <mo>,</mo><mspace width="1.2em"/>
+                        <mi>Σ</mi><mi>w</mi><mo>=</mo><mi>λ</mi><mi>w</mi>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (8.1)　第一主成分的约束优化及其解：解恰为协方差矩阵 Σ 最大特征值 λ₁ 对应的单位特征向量 w₁，且 Var(z₁) = λ₁；后续主成分在与已有方向正交的子空间中重复同一过程。</p>
+        </div>
 
         <p>这个推导结果极其优雅：<strong>第一主成分的方向 w₁ 恰好是协方差矩阵 Σ 的最大特征值对应的特征向量</strong>，而对应的特征值 λ₁ 就是第一主成分的方差。</p>
 
@@ -110,10 +132,13 @@ L = w₁ᵀ Σ w₁ - λ(w₁ᵀ w₁ - 1)
         <pre><code>Σ = Q Λ Qᵀ
 
 其中：
-Q = [w₁, w₂, ..., wₚ] 是正交矩阵（QᵀQ = I）
-  wⱼ 是第 j 个特征向量（即第 j 个主成分的载荷向量）
-Λ = diag(λ₁, λ₂, ..., λₚ)，λ₁ ≥ λ₂ ≥ ... ≥ λₚ ≥ 0
-  λⱼ 是第 j 个特征值，等于第 j 个主成分的方差
+Q = [w₁, ..., wₚ] 是正交矩阵 (QᵀQ = I)
+  wⱼ 是第 j 个特征向量
+  （即第 j 个主成分的载荷向量）
+Λ = diag(λ₁, λ₂, ..., λₚ)
+λ₁ ≥ λ₂ ≥ ... ≥ λₚ ≥ 0
+  λⱼ 是第 j 个特征值
+  （等于第 j 个主成分的方差）
 
 第 j 个主成分的样本值（得分）为：
 zⱼ = X wⱼ</code></pre>
@@ -137,6 +162,35 @@ zⱼ = X wⱼ</code></pre>
 
         <p>更正式地说，PCA 对原始坐标系做了<strong>刚性旋转 (rigid rotation)</strong>，使得新坐标轴与数据变异最大的方向对齐。这是 PCA 与普通线性回归的关键区别：回归最小化的是预测误差（垂直于拟合线的距离），而 PCA 最小化的是投影误差（垂直到主成分方向的距离）。</p>
 
+        <figure>
+            <svg viewBox="0 0 760 420" role="img" aria-labelledby="f8-title f8-desc">
+                <title id="f8-title">PCA 的几何解释：旋转坐标轴到变异最大的方向</title>
+                <desc id="f8-desc">一组呈正相关的二维点组成倾斜椭圆。第一主成分 PC1 沿椭圆长轴（点云散布最大），第二主成分 PC2 与之垂直、沿短轴。虚线表示样本点向 PC1 的投影，投影坐标就是第一主成分得分。</desc>
+                <rect width="760" height="420" fill="#fafafe"/>
+                <ellipse cx="380" cy="240" rx="175" ry="72" transform="rotate(-30 380 240)" fill="#ede9fe" stroke="#c4b5fd"/>
+                <line x1="181" y1="355" x2="579" y2="125" stroke="#7c3aed" stroke-width="3"/>
+                <line x1="325" y1="145" x2="435" y2="335" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="8 5"/>
+                <g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4">
+                    <line x1="532" y1="164" x2="527" y2="155"/>
+                    <line x1="242" y1="307" x2="248" y2="317"/>
+                </g>
+                <g fill="#7c3aed">
+                    <circle cx="532" cy="164" r="6"/><circle cx="487" cy="154" r="6"/><circle cx="482" cy="213" r="6"/>
+                    <circle cx="441" cy="176" r="6"/><circle cx="429" cy="224" r="6"/><circle cx="412" cy="262" r="6"/>
+                    <circle cx="350" cy="221" r="6"/><circle cx="346" cy="284" r="6"/><circle cx="296" cy="264" r="6"/>
+                    <circle cx="286" cy="315" r="6"/><circle cx="242" cy="307" r="6"/><circle cx="525" cy="185" r="6"/>
+                    <circle cx="337" cy="301" r="6"/><circle cx="414" cy="180" r="6"/>
+                </g>
+                <circle cx="380" cy="240" r="5" fill="#1f2937"/>
+                <text x="386" y="236" font-size="15" fill="#1f2937" font-weight="600">C</text>
+                <text x="560" y="108" font-size="14" fill="#6d28d9" font-weight="600">PC1 长轴（方差最大）</text>
+                <text x="352" y="360" font-size="14" fill="#0e7490" font-weight="600">PC2 短轴</text>
+                <text x="540" y="200" font-size="12" fill="#64748b">虚线：向 PC1 投影</text>
+                <text x="540" y="218" font-size="12" fill="#64748b">投影坐标 = 主成分得分</text>
+            </svg>
+            <figcaption>图 8-1　二维 PCA 的几何：数据点（紫）呈倾斜椭圆，第一主成分沿长轴、第二主成分沿短轴且互相垂直；只保留 PC1 相当于把椭圆压到长轴上。均值点 C 为坐标原点，图为教学示意。</figcaption>
+        </figure>
+
         <pre><code># 二维PCA的几何计算
 # 假设数据矩阵 X (n × 2)，已经中心化
 
@@ -145,7 +199,7 @@ zⱼ = X wⱼ</code></pre>
 
 # 步骤2：特征值分解
 λ₁, λ₂ = eigenvalues(Σ)     # λ₁ ≥ λ₂
-w₁, w₂ = eigenvectors(Σ)     # 对应的特征向量
+w₁, w₂ = eigenvectors(Σ)  # 特征向量
 
 # 步骤3：投影
 z₁ = X w₁   # 第一主成分得分（n 维向量）
@@ -154,7 +208,7 @@ z₂ = X w₂   # 第二主成分得分（n 维向量）
 # 如果只保留第一主成分，重建数据：
 X̂ = z₁ w₁ᵀ   # 降维到1维再回到2维
 
-# 重建误差（每个点到主成分方向的距离平方和）：
+# 重建误差（点到主成分方向的距离平方）
 ||X - X̂||² = n × λ₂</code></pre>
 
         <p>重建误差恰好等于被舍弃的特征值之和乘以样本量。这告诉我们在降维时"丢掉了多少信息"——被舍弃的特征值越小，信息损失越小。</p>
@@ -165,9 +219,10 @@ X̂ = z₁ w₁ᵀ   # 降维到1维再回到2维
 
         <p><strong>累计方差贡献率 (Proportion of Variance Explained, PVE)</strong> 是最常用的判断标准。第 k 个主成分的方差贡献率定义为：</p>
 
-        <pre><code>第 k 个主成分方差贡献率 = λₖ / (λ₁ + λ₂ + ... + λₚ)
+        <pre><code>第 k 个主成分贡献率 = λₖ / Σⱼλⱼ
 
-前 K 个主成分的累计方差贡献率 = (λ₁ + λ₂ + ... + λₖ) / (λ₁ + λ₂ + ... + λₚ)</code></pre>
+前 K 个的累计贡献率 =
+  (λ₁ + λ₂ + ... + λₖ) / Σⱼλⱼ</code></pre>
 
         <p>常用的选择标准包括：</p>
 
@@ -194,14 +249,19 @@ X̂ = z₁ w₁ᵀ   # 降维到1维再回到2维
         <pre><code>X = U D Vᵀ
 
 其中：
-U: n × r 矩阵，列正交（UᵀU = I），r = rank(X) ≤ min(n, p)
-D: r × r 对角矩阵，diag(d₁, d₂, ..., dᵣ)，d₁ ≥ d₂ ≥ ... ≥ dᵣ > 0
+U: n × r 矩阵，列正交 (UᵀU = I)
+r = rank(X) ≤ min(n, p)
+D: r × r 对角矩阵
+diag(d₁, ..., dᵣ)，d₁ ≥ d₂ ≥ ... ≥ dᵣ > 0
 V: p × r 矩阵，列正交（VᵀV = I）
 
 PCA 的关系：
-- 主成分得分：Z = X V = U D     （因为 X V = U D Vᵀ V = U D）
-- 特征值：λⱼ = dⱼ² / (n-1)    （与协方差矩阵的特征值对应）
-- 载荷向量：V 的第 j 列就是第 j 个主成分的载荷 wⱼ</code></pre>
+- 主成分得分：Z = X V = U D
+  （因为 X V = U D Vᵀ V = U D）
+- 特征值：λⱼ = dⱼ² / (n-1)
+  （与协方差矩阵特征值对应）
+- 载荷向量：V 的第 j 列
+  就是第 j 个主成分的载荷 wⱼ</code></pre>
 
         <p>SVD 路径有几个计算上的优点。第一，对于 n < p 的情况（样本少于变量，这在基因组学中很常见），直接在 n × n 矩阵上做 SVD 比构造 p × p 的协方差矩阵要快得多。第二，SVD 的数值稳定性更好——它避免了显式构造协方差矩阵带来的精度损失（因为 Σ = XᵀX/(n-1) 相当于对 X 做平方，会放大条件数）。第三，SVD 支持稀疏矩阵和截断计算，我们可以只计算前 k 个奇异值而无需计算全部。</p>
 
@@ -230,7 +290,7 @@ PCA 的关系：
             <a href="index.html">📖 返回目录</a>
             <a href="09.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
