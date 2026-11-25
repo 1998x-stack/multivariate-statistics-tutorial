@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第22章　多维标度法（MDS）</h1>
+            <p class="article-meta">从距离重建坐标 · 经典MDS 双中心化 · 非度量MDS 与 Shepard 图 · 应力与拟合评估</p>
+        </header>
 
         <h2>开篇：从距离重建地图</h2>
 
@@ -56,12 +62,32 @@
 
         <p>MDS要解决的基本问题可以形式化地表述为：</p>
 
-        <pre><code>已知：n 个对象之间的两两距离矩阵 D（n × n），其中 dᵢⱼ ≥ 0, dᵢᵢ = 0
-目标：找到 n 个低维空间中的点 {x₁, x₂, ..., xₙ} ⊂ ℝᵏ（通常 k=2 或 k=3），
-       使得点间欧氏距离 ||xᵢ - xⱼ|| 尽可能接近原始距离 dᵢⱼ
+        <pre><code>已知：两两距离矩阵 D（n × n）
+      dᵢⱼ ≥ 0, dᵢᵢ = 0
+目标：找到 n 个低维空间的点
+      {x₁, ..., xₙ} ⊂ ℝᵏ（k=2 或 3）
+      使 ||xᵢ - xⱼ|| 尽量接近 dᵢⱼ
 
 优化目标（应力函数 Stress）：
-Stress = √( Σᵢⱼ (||xᵢ - xⱼ|| - dᵢⱼ)² / Σᵢⱼ dᵢⱼ² )</code></pre>
+Stress = √( Σᵢⱼ (||xᵢ-xⱼ|| - dᵢⱼ)²
+           / Σᵢⱼ dᵢⱼ² )</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="MDS 应力函数公式，可横向滚动">
+                <math display="block" aria-label="应力 Stress 等于所有点对重构距离与原始距离之差的平方和，除以原始距离平方和的平方根">
+                    <mrow>
+                        <mtext>Stress</mtext><mo>=</mo>
+                        <msqrt>
+                            <mfrac>
+                                <mrow><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msup><mrow><mo>(</mo><mo>‖</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>x</mi><mi>j</mi></msub><mo>‖</mo><mo>−</mo><msub><mi>d</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>)</mo></mrow><mn>2</mn></msup></mrow>
+                                <mrow><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msubsup><mi>d</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup></mrow>
+                            </mfrac>
+                        </msqrt>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (22.1)　MDS 的应力函数：重构距离 ‖xᵢ−xⱼ‖ 与原始距离 dᵢⱼ 的总体偏差越小，低维构型对原始距离的复现越好。</p>
+        </div>
 
         <p>MDS的输入距离矩阵可以来自任何度量——欧氏距离、曼哈顿距离、相关系数转化成的距离（如 1 - r）、甚至主观感知的相似度评分。不同距离度量会得到不同的"地图"，因此选择适当的距离度量是MDS应用中的关键一步。</p>
 
@@ -78,7 +104,8 @@ Stress = √( Σᵢⱼ (||xᵢ - xⱼ|| - dᵢⱼ)² / Σᵢⱼ dᵢⱼ² )</cod
 
         <p>经典MDS的核心步骤：</p>
 
-        <pre><code>设 D 为 n×n 距离矩阵，元素 dᵢⱼ 为对象 i 与 j 之间的距离。
+        <pre><code>设 D 为 n×n 距离矩阵，dᵢⱼ 为
+对象 i 与 j 之间的距离。
 
 步骤1：计算平方距离矩阵
 Δ = [dᵢⱼ²]
@@ -89,14 +116,63 @@ B = -½ J Δ J
 （J 的作用是将矩阵的行和列均值都变为零）
 
 步骤3：对 B 进行特征值分解
-B = V Λ Vᵀ，其中 Λ = diag(λ₁, λ₂, ..., λₙ)，λ₁ ≥ λ₂ ≥ ... ≥ λₙ
+B = V Λ Vᵀ
+其中 Λ = diag(λ₁, ..., λₙ)
+     λ₁ ≥ λ₂ ≥ ... ≥ λₙ
 
 步骤4：取前 k 个最大特征值及其对应的特征向量
 X = Vₖ Λₖ¹/²
 
-X 是 n×k 的坐标矩阵，第 i 行就是对象 i 在 k 维空间中的坐标。</code></pre>
+X 是 n×k 坐标矩阵，第 i 行为
+对象 i 在 k 维空间中的坐标。</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="经典 MDS 的双中心化公式，可横向滚动">
+                <math display="block" aria-label="内积矩阵 B 等于负二分之一乘中心化矩阵 J、平方距离矩阵 Δ、再乘 J">
+                    <mrow>
+                        <mi>B</mi><mo>=</mo><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac>
+                        <mi>J</mi><mi>Δ</mi><mi>J</mi>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>J</mi><mo>=</mo><mi>I</mi><mo>−</mo><mfrac><mn>1</mn><mi>n</mi></mfrac>
+                        <mn>1</mn><msup><mn>1</mn><mo>⊤</mo></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (22.2)　双中心化：把平方距离矩阵 Δ 转换为中心化内积矩阵 B，再对其特征分解即可得到低维坐标。</p>
+        </div>
 
         <p>双中心化的目的是将距离矩阵转换为内积矩阵。一旦我们得到了对象间的内积矩阵B，对它做特征值分解就相当于PCA——事实上，<strong>当距离是欧氏距离时，经典MDS等价于PCA</strong>。我们在后面会详细展开这个关系。</p>
+
+        <figure id="fig-mds">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f22-title f22-desc">
+                <title id="f22-title">MDS 重构构型及其旋转不变性</title>
+                <desc id="f22-desc">五个对象由两两距离重建为二维坐标点，连线表示对象间距离；旋转整个构型后点间距离保持不变，说明 MDS 解只在旋转、镜像、平移意义下唯一。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <line x1="60" y1="190" x2="700" y2="190" stroke="#e2e8f0"/>
+                <line x1="380" y1="40" x2="380" y2="340" stroke="#e2e8f0"/>
+                <g id="g-map">
+                    <g id="g-edges" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 4">
+                        <line x1="230" y1="110" x2="500" y2="80"/><line x1="500" y1="80" x2="560" y2="250"/>
+                        <line x1="560" y1="250" x2="340" y2="320"/><line x1="340" y1="320" x2="210" y2="230"/>
+                        <line x1="210" y1="230" x2="230" y2="110"/><line x1="230" y1="110" x2="560" y2="250"/>
+                    </g>
+                    <g fill="#7c3aed">
+                        <circle cx="230" cy="110" r="9"/><circle cx="500" cy="80" r="9"/><circle cx="560" cy="250" r="9"/><circle cx="340" cy="320" r="9"/><circle cx="210" cy="230" r="9"/>
+                    </g>
+                    <g font-size="14" fill="#5b21b6" font-weight="600">
+                        <text x="214" y="102">A</text><text x="512" y="76">B</text><text x="572" y="256">C</text><text x="330" y="342">D</text><text x="190" y="250">E</text>
+                    </g>
+                </g>
+                <circle cx="380" cy="190" r="4" fill="#cbd5e1"/>
+                <text x="70" y="50" font-size="13" fill="#334155">MDS 重构坐标（相对构型）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-rot" aria-pressed="false">旋转 90°</button>
+                <button type="button" id="btn-edge" aria-pressed="true">显示距离连线</button>
+                <output id="mds-out" aria-live="polite">旋转 0°：点间距离不变</output>
+            </div>
+            <figcaption>图 22-1　MDS 只在旋转、镜像、平移意义下唯一：转动整个构型，对象之间的相对距离不变（点位与角度为教学示意）。</figcaption>
+        </figure>
 
         <div class="tip">
             <strong>一点历史：</strong>经典MDS的数学基础可以追溯到年轻的Schönberg在1935年的一篇论文，他研究了"什么时候距离矩阵可以被嵌入欧氏空间？"结论是：当且仅当双中心化后的矩阵B是半正定的（特征值都非负），距离矩阵就能被精确地嵌入欧氏空间。这个条件在心理学和感知研究中往往不满足——因为人的判断不一致——这也正是为什么我们需要非度量MDS。
@@ -109,14 +185,16 @@ X 是 n×k 的坐标矩阵，第 i 行就是对象 i 在 k 维空间中的坐标
         <p><strong>非度量MDS (Non-metric MDS, NMDS)</strong> 就是为了处理这种情况而设计的。它只要求输入数据保持<strong>序次关系 (rank order)</strong>，而不要求数值精度。</p>
 
         <pre><code>NMDS的目标：
-找到低维坐标，使得坐标间的距离 d̂ᵢⱼ 与原始不相似度 δᵢⱼ 的<strong>排序</strong>一致。
+找到低维坐标，使距离 d̂ᵢⱼ 与
+原始不相似度 δᵢⱼ 的<strong>排序</strong>一致。
 
 即：如果 δᵢⱼ &lt; δₖₗ，则 d̂ᵢⱼ 应该 &lt; d̂ₖₗ（尽可能）
 
 应力函数 (Stress)：
 Stress = √( Σᵢⱼ (d̂ᵢⱼ - f(δᵢⱼ))² / Σᵢⱼ d̂ᵢⱼ² )
 
-其中 f 是单调递增的变换函数（通过等序回归 monotonic regression 估计），
+其中 f 是单调递增变换函数
+（通过等序回归估计），
 将原始不相似度 δᵢⱼ 映射到"目标距离"。</code></pre>
 
         <p>NMDS使用迭代优化算法（如梯度下降或SMACOF算法）来最小化应力函数。它不保证全局最优解，因此实践中需要多次随机初始化并选择应力最小的结果。</p>
@@ -171,23 +249,25 @@ Stress = √( Σᵢⱼ (d̂ᵢⱼ - f(δᵢⱼ))² / Σᵢⱼ d̂ᵢⱼ² )
         <p>让我们用MDS做一个经典实验：用中国主要城市间的公路距离数据，重建这些城市的"地图"。</p>
 
         <pre><code># R代码示例：中国城市距离MDS
-cities <- c("北京", "上海", "广州", "成都", "武汉", "西安", "深圳", "杭州")
+cities <- c("北京", "上海", "广州", "成都",
+            "武汉", "西安", "深圳", "杭州")
 
 # 简化的距离矩阵（单位：公里，示意数据）
 dist_matrix <- matrix(c(
-  0, 1213, 1889, 1542, 1155, 934, 1947, 1279,
-  1213, 0, 1197, 1660, 688, 1361, 1217, 167,
-  1889, 1197, 0, 1248, 812, 1391, 91, 1070,
-  1542, 1660, 1248, 0, 1002, 623, 1246, 1525,
-  1155, 688, 812, 1002, 0, 701, 840, 665,
-  934, 1361, 1391, 623, 701, 0, 1524, 1276,
-  1947, 1217, 91, 1246, 840, 1524, 0, 1070,
-  1279, 167, 1070, 1525, 665, 1276, 1070, 0
+0, 1213, 1889, 1542, 1155, 934, 1947, 1279,
+1213, 0, 1197, 1660, 688, 1361, 1217, 167,
+1889, 1197, 0, 1248, 812, 1391, 91, 1070,
+1542, 1660, 1248, 0, 1002, 623, 1246, 1525,
+1155, 688, 812, 1002, 0, 701, 840, 665,
+934, 1361, 1391, 623, 701, 0, 1524, 1276,
+1947, 1217, 91, 1246, 840, 1524, 0, 1070,
+1279, 167, 1070, 1525, 665, 1276, 1070, 0
 ), nrow = 8, byrow = TRUE)
 
 # 经典MDS
 mds_result <- cmdscale(dist_matrix, k = 2)
-plot(mds_result, type = "n", xlab = "MDS1", ylab = "MDS2")
+plot(mds_result, type = "n",
+     xlab = "MDS1", ylab = "MDS2")
 text(mds_result, labels = cities, cex = 0.8)</code></pre>
 
         <p>运行这段代码，你会发现MDS重建的城市相对位置与真实地图惊人地一致：北京在北方，广州和深圳在南方沿海，成都和西安在西部。虽然MDS不知道经纬度、不知道"北方在哪"，仅凭距离信息就能恢复相对位置——这就是MDS的强大之处。</p>
@@ -217,8 +297,34 @@ text(mds_result, labels = cities, cex = 0.8)</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="23.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-mds');
+    if (!fig) return;
+    var g = fig.querySelector('#g-map');
+    var bRot = document.getElementById('btn-rot');
+    var bEdge = document.getElementById('btn-edge');
+    var out = document.getElementById('mds-out');
+    var angle = 0;
+    function render() {
+        g.setAttribute('transform', 'rotate(' + angle + ' 380 190)');
+        var e = bEdge.getAttribute('aria-pressed') === 'true';
+        fig.querySelector('#g-edges').style.display = e ? '' : 'none';
+        out.textContent = '旋转 ' + angle + '°：点间距离不变，仅方向改变';
+    }
+    bRot.addEventListener('click', function () {
+        angle = (angle + 90) % 360;
+        render();
+    });
+    bEdge.addEventListener('click', function () {
+        bEdge.setAttribute('aria-pressed', bEdge.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
