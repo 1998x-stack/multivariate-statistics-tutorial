@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第19章　典型相关分析：原理</h1>
+            <p class="article-meta">两组变量的整体相关 · 典型变量与投影 · 广义特征值求解 · 典型载荷与冗余指数</p>
+        </header>
 
         <h2>开篇：当两组变量"面对面"</h2>
 
@@ -80,9 +86,58 @@
         <pre><code>u = a₁X₁ + a₂X₂ + ... + aₚXₚ = aᵀX
 v = b₁Y₁ + b₂Y₂ + ... + b_qY_q = bᵀY
 
-目标：最大化 corr(u, v) = cov(u, v) / √(Var(u) · Var(v))
+目标：最大化
+corr(u, v) = cov(u, v) / √(Var(u)·Var(v))
 
-约束条件：Var(u) = Var(v) = 1 （标准化，避免尺度任意放大）</code></pre>
+约束条件：Var(u) = Var(v) = 1
+（标准化，避免尺度任意放大）</code></pre>
+
+        <figure id="fig-cca">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f19-title f19-desc">
+                <title id="f19-title">典型相关分析的逐对提取示意</title>
+                <desc id="f19-desc">左侧 X 组变量与右侧 Y 组变量各自投影出典型变量 u 与 v，二者之间的相关系数 ρ 即为典型相关系数；相互正交地可提取多对（ρ₁ > ρ₂）。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <rect x="50" y="70" width="150" height="220" rx="12" fill="#ede9fe" stroke="#c4b5fd"/>
+                <rect x="560" y="70" width="150" height="220" rx="12" fill="#e0f2fe" stroke="#7dd3fc"/>
+                <text x="125" y="56" font-size="14" fill="#5b21b6" text-anchor="middle" font-weight="600">X 组变量</text>
+                <text x="635" y="56" font-size="14" fill="#0e7490" text-anchor="middle" font-weight="600">Y 组变量</text>
+                <g fill="#fff" stroke="#7c3aed">
+                    <circle cx="90" cy="120" r="16"/><circle cx="160" cy="120" r="16"/><circle cx="90" cy="240" r="16"/><circle cx="160" cy="240" r="16"/>
+                </g>
+                <g fill="#fff" stroke="#0ea5e9">
+                    <circle cx="600" cy="120" r="16"/><circle cx="670" cy="120" r="16"/><circle cx="600" cy="240" r="16"/><circle cx="670" cy="240" r="16"/>
+                </g>
+                <g font-size="12" fill="#5b21b6" text-anchor="middle"><text x="90" y="124">X₁</text><text x="160" y="124">X₂</text><text x="90" y="244">Xₚ</text><text x="160" y="244">…</text></g>
+                <g font-size="12" fill="#0e7490" text-anchor="middle"><text x="600" y="124">Y₁</text><text x="670" y="124">Y₂</text><text x="600" y="244">Y_q</text><text x="670" y="244">…</text></g>
+                <g id="g-pair1">
+                    <ellipse cx="330" cy="130" rx="58" ry="30" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+                    <ellipse cx="470" cy="130" rx="58" ry="30" fill="#ecfeff" stroke="#0ea5e9" stroke-width="2"/>
+                    <text x="330" y="135" font-size="13" fill="#5b21b6" text-anchor="middle">u₁=aᵀX</text>
+                    <text x="470" y="135" font-size="13" fill="#0e7490" text-anchor="middle">v₁=bᵀY</text>
+                    <line x1="200" y1="130" x2="268" y2="130" stroke="#7c3aed" stroke-width="2"/>
+                    <line x1="560" y1="130" x2="532" y2="130" stroke="#0ea5e9" stroke-width="2"/>
+                    <line x1="392" y1="130" x2="404" y2="130" stroke="#ef4444" stroke-width="2"/>
+                    <text x="398" y="112" font-size="13" fill="#b91c1c" text-anchor="middle">ρ₁</text>
+                </g>
+                <g id="g-pair2" style="display:none">
+                    <ellipse cx="330" cy="250" rx="58" ry="30" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+                    <ellipse cx="470" cy="250" rx="58" ry="30" fill="#ecfeff" stroke="#0ea5e9" stroke-width="2"/>
+                    <text x="330" y="255" font-size="13" fill="#5b21b6" text-anchor="middle">u₂=aᵀX</text>
+                    <text x="470" y="255" font-size="13" fill="#0e7490" text-anchor="middle">v₂=bᵀY</text>
+                    <line x1="200" y1="250" x2="268" y2="250" stroke="#7c3aed" stroke-width="2"/>
+                    <line x1="560" y1="250" x2="532" y2="250" stroke="#0ea5e9" stroke-width="2"/>
+                    <line x1="392" y1="250" x2="404" y2="250" stroke="#ef4444" stroke-width="2"/>
+                    <text x="398" y="232" font-size="13" fill="#b91c1c" text-anchor="middle">ρ₂</text>
+                </g>
+                <text x="330" y="350" font-size="12" fill="#64748b" text-anchor="middle">逐对提取：后一对与前一对正交，且 ρ₁ ≥ ρ₂ ≥ …</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-p1" aria-pressed="true">第 1 对典型变量</button>
+                <button type="button" id="btn-p2" aria-pressed="false">第 2 对典型变量</button>
+                <output id="cca-out" aria-live="polite">当前显示：第 1 对（ρ₁）</output>
+            </div>
+            <figcaption>图 19-1　CCA 在两组变量中各自构造线性组合 u=aᵀX 与 v=bᵀY，使二者相关最大；再以正交约束提取下一对，且典型相关系数依次递减（结构为教学示意）。</figcaption>
+        </figure>
 
         <p>这本质上是一个约束优化问题。找到了第一对典型变量 (u₁, v₁) 和它们之间的典型相关系数 ρ₁ 之后，我们还可以继续找第二对 (u₂, v₂)，满足 u₂ 与 u₁ 不相关、v₂ 与 v₁ 不相关，并且在所有与前面不相关的线性组合中最大化相关系数。重复这个过程，最多可以提取出 min(p, q) 对典型变量。</p>
 
@@ -99,7 +154,8 @@ Cov([X; Y]) = [              ]
 其中：
 - Σ_XX : p × p，X组变量的协方差矩阵
 - Σ_YY : q × q，Y组变量的协方差矩阵
-- Σ_XY : p × q，X与Y的协方差矩阵（Σ_YX = Σ_XYᵀ）
+- Σ_XY : p × q，X 与 Y 的协方差矩阵
+  （Σ_YX = Σ_XYᵀ）
 
 典型变量 u = aᵀX, v = bᵀY 的协方差为：
 cov(u, v) = aᵀ Σ_XY b
@@ -110,9 +166,28 @@ Var(v) = bᵀ Σ_YY b
 max  aᵀ Σ_XY b
 s.t. aᵀ Σ_XX a = 1,  bᵀ Σ_YY b = 1</code></pre>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="典型相关的优化问题，可横向滚动">
+                <math display="block" aria-label="最大化 a 转置 Σ XY b，约束为 a 转置 Σ XX a 等于 1、b 转置 Σ YY b 等于 1">
+                    <mrow>
+                        <munder><mo movablelimits="true">max</mo><mrow><mi>a</mi><mo>,</mo><mi>b</mi></mrow></munder>
+                        <msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>Σ</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub><mi>b</mi>
+                        <mspace width="1em"/>
+                        <mtext>s.t.</mtext><mspace width="0.3em"/>
+                        <msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>Σ</mi><mrow><mi>X</mi><mi>X</mi></mrow></msub><mi>a</mi><mo>=</mo><mn>1</mn>
+                        <mo>,</mo><mspace width="0.5em"/>
+                        <msup><mi>b</mi><mo>⊤</mo></msup><msub><mi>Σ</mi><mrow><mi>Y</mi><mi>Y</mi></mrow></msub><mi>b</mi><mo>=</mo><mn>1</mn>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (19.1)　典型相关的约束优化：在各自单位方差约束下最大化两线性组合 u=aᵀX 与 v=bᵀY 的协方差。</p>
+        </div>
+
         <p>用拉格朗日乘子法求解这个约束优化问题。构造拉格朗日函数：</p>
 
-        <pre><code>L = aᵀ Σ_XY b - (λ/2)(aᵀ Σ_XX a - 1) - (μ/2)(bᵀ Σ_YY b - 1)
+        <pre><code>L = aᵀ Σ_XY b
+    - (λ/2)(aᵀ Σ_XX a - 1)
+    - (μ/2)(bᵀ Σ_YY b - 1)
 
 分别对 a 和 b 求偏导并令其为零：
 ∂L/∂a = Σ_XY b - λ Σ_XX a = 0
@@ -123,6 +198,24 @@ s.t. aᵀ Σ_XX a = 1,  bᵀ Σ_YY b = 1</code></pre>
 
 (Σ_XY Σ_YY⁻¹ Σ_YX) a = λ² Σ_XX a
 (Σ_YX Σ_XX⁻¹ Σ_XY) b = λ² Σ_YY b</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="典型相关的广义特征值方程，可横向滚动">
+                <math display="block" aria-label="Σ XX 逆 Σ XY Σ YY 逆 Σ YX 乘 a 等于 λ 平方乘 Σ XX 乘 a">
+                    <mrow>
+                        <msubsup><mi>Σ</mi><mrow><mi>X</mi><mi>X</mi></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msubsup>
+                        <msub><mi>Σ</mi><mrow><mi>X</mi><mi>Y</mi></mrow></msub>
+                        <msubsup><mi>Σ</mi><mrow><mi>Y</mi><mi>Y</mi></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msubsup>
+                        <msub><mi>Σ</mi><mrow><mi>Y</mi><mi>X</mi></mrow></msub>
+                        <mi>a</mi><mo>=</mo>
+                        <msup><mi>λ</mi><mn>2</mn></msup>
+                        <msub><mi>Σ</mi><mrow><mi>X</mi><mi>X</mi></mrow></msub>
+                        <mi>a</mi>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (19.2)　典型相关归结为广义特征值问题；特征值 λ² 即典型相关系数的平方，特征向量 a 给出 X 组的线性权重。</p>
+        </div>
 
         <p>这两个公式是CCA的核心。第一个公式的解 a 是矩阵 <strong>Σ_XX⁻¹ Σ_XY Σ_YY⁻¹ Σ_YX</strong> 的广义特征向量，对应的特征值 λ² 就是典型相关系数的平方。在实际计算中，我们通常对数据做QR分解或SVD来计算典型变量，数值上更稳定。</p>
 
@@ -140,10 +233,13 @@ s.t. aᵀ Σ_XX a = 1,  bᵀ Σ_YY b = 1</code></pre>
         <h3>典型载荷 (Canonical Loadings)</h3>
         <p>典型载荷是原始变量与典型变量之间的相关系数。对于X组变量：</p>
 
-        <pre><code>载荷(X, u₁) = corr(Xᵢ, u₁) = 第i个X变量与第一个典型变量u₁的相关系数
+        <pre><code>载荷(X, u₁) = corr(Xᵢ, u₁)
+  = 第 i 个 X 变量与 u₁ 的相关系数
 
-这个量帮助我们回答："第一个典型变量u₁主要代表了X组中的哪些变量？"
-如果X₁的载荷为0.85，说明X₁与u₁高度正相关，u₁可以被解释为X₁的某种综合。</code></pre>
+这个量回答："u₁ 主要代表了
+X 组中的哪些变量？"
+若 X₁ 的载荷为 0.85，说明 X₁ 与 u₁
+高度正相关，u₁ 可解释为 X₁ 的综合。</code></pre>
 
         <h3>交叉载荷 (Cross-Loadings)</h3>
         <p>交叉载荷是X组变量与Y组的典型变量 v 之间的相关系数，反之亦然。这提供了"一组变量对另一组典型变量的解释力"的信息。</p>
@@ -169,7 +265,8 @@ Rd(X|uᵢ) = (1/p) Σⱼ₌₁ᵖ loadings(Xⱼ, uᵢ)²
 第二步：乘以典型相关系数的平方 ρᵢ²
 Rd(X|vᵢ) = Rd(X|uᵢ) × ρᵢ²
 
-Rd(X|vᵢ) 的含义是："Y组的第i个典型变量 vᵢ 能解释X组总变异的百分之多少"</code></pre>
+Rd(X|vᵢ) 的含义是："Y 组的第 i 个
+典型变量 vᵢ 能解释 X 组多少变异"</code></pre>
 
         <p>冗余指数是一个比典型相关系数更"诚实"的指标。你可能遇到 ρ=0.90 这样的高相关，但冗余指数只有15%——这意味着虽然 u 和 v 高度线性相关（方向几乎一致），但 v 只能解释X组总变异的一小部分。这在报告CCA结果时是非常关键的补充信息。</p>
 
@@ -211,8 +308,29 @@ Rd(X|vᵢ) 的含义是："Y组的第i个典型变量 vᵢ 能解释X组总变�
             <a href="index.html">📖 返回目录</a>
             <a href="20.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-cca');
+    if (!fig) return;
+    var b1 = document.getElementById('btn-p1');
+    var b2 = document.getElementById('btn-p2');
+    var out = document.getElementById('cca-out');
+    function show(one) {
+        var b = one ? b1 : b2;
+        var o = one ? b2 : b1;
+        b.setAttribute('aria-pressed', 'true');
+        o.setAttribute('aria-pressed', 'false');
+        fig.querySelector('#g-pair1').style.display = one ? '' : 'none';
+        fig.querySelector('#g-pair2').style.display = one ? 'none' : '';
+        out.textContent = '当前显示：' + (one ? '第 1 对（ρ₁）' : '第 2 对（ρ₂）');
+    }
+    b1.addEventListener('click', function () { show(true); });
+    b2.addEventListener('click', function () { show(false); });
+    show(true);
+})();
+</script>
 </body>
 </html>
