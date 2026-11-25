@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第02章　矩阵基础与随机向量</h1>
+            <p class="article-meta">矩阵运算与迹 · 特征值与特征向量 · SVD · 随机向量 · 均值与协方差矩阵 · 二次型与线性变换</p>
+        </header>
 
         <h2>数学脚手架：多元统计的线性代数基础</h2>
 
@@ -81,6 +87,19 @@
 
         <pre><code>A v = λ v</code></pre>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="特征值方程，可横向滚动">
+                <math display="block" aria-label="A 乘 v 等于 λ 乘 v，其中 v 为非零特征向量，λ 为特征值">
+                    <mrow>
+                        <mi>A</mi><mi>v</mi><mo>=</mo><mi>λ</mi><mi>v</mi>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>v</mi><mo>≠</mo><mn>0</mn>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (2.1)　特征值方程。若 <math class="math-inline" aria-label="A 减 λI 的行列式等于 0"><mrow><mi>det</mi><mo>(</mo><mi>A</mi><mo>−</mo><mi>λ</mi><mi>I</mi><mo>)</mo><mo>=</mo><mn>0</mn></mrow></math>，则存在非零解，由此可解出全部特征值。</p>
+        </div>
+
         <p>则 λ 是 A 的<strong>特征值 (eigenvalue)</strong>，v 是对应的<strong>特征向量 (eigenvector)</strong>。</p>
 
         <p>这个等式说的几何含义是什么？你可以把 A 看作一个线性变换——它对空间里的向量进行拉伸、旋转、挤压。但特征向量 v 是一个特殊的方向：当 A 作用在 v 上时，它只是把 v 拉长（或缩短）了 λ 倍，方向没有改变。换句话说，<strong>特征向量是变换的"不变方向"</strong>。</p>
@@ -88,6 +107,45 @@
         <div class="highlight">
             <strong>几何直觉：</strong>想象你把一块橡皮泥捏扁。橡皮泥上画的网格线大部分都会扭曲，但总有一些线方向不变——它们就是"特征方向"。特征值则告诉你沿这个方向被拉伸（λ > 1）还是压缩（0 < λ < 1）了多少。如果 λ = 0，意味着这个方向被完全压扁了——矩阵在这个方向上是奇异的。
         </div>
+
+        <figure id="fig-eig">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f2-title f2-desc">
+                <title id="f2-title">单位圆经矩阵变换后的椭圆与特征方向</title>
+                <desc id="f2-desc">以原点为中心的单位圆（虚线）经矩阵 A 作用后变成实线椭圆；椭圆的长短轴方向就是 A 的两个特征方向，半轴长度等于对应特征值的绝对值。</desc>
+                <defs>
+                    <marker id="arr02" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#b45309"/>
+                    </marker>
+                </defs>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <line x1="120" y1="190" x2="680" y2="190" stroke="#cbd5e1"/>
+                <line x1="380" y1="30" x2="380" y2="350" stroke="#cbd5e1"/>
+                <g id="g-unit" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="7 5">
+                    <circle cx="380" cy="190" r="52"/>
+                </g>
+                <g id="g-image" fill="none" stroke="#7c3aed" stroke-width="2">
+                    <ellipse cx="380" cy="190" rx="156" ry="52" transform="rotate(45 380 190)"/>
+                </g>
+                <g id="g-eig" stroke="#b45309" stroke-width="2.5">
+                    <line x1="380" y1="190" x2="436" y2="246" marker-end="url(#arr02)"/>
+                    <line x1="380" y1="190" x2="436" y2="134" marker-end="url(#arr02)"/>
+                </g>
+                <circle cx="380" cy="190" r="5" fill="#1f2937"/>
+                <text x="366" y="214" font-size="15" fill="#1f2937" font-weight="600">O</text>
+                <text x="444" y="266" font-size="13" fill="#b45309">v₁ (λ₁=3)</text>
+                <text x="444" y="126" font-size="13" fill="#b45309">v₂ (λ₂=1)</text>
+                <text x="540" y="300" font-size="13" fill="#0e7490">虚线圆：单位圆 ‖v‖=1</text>
+                <text x="540" y="322" font-size="13" fill="#6d28d9">实线椭圆：像 {Av : ‖v‖=1}</text>
+                <text x="90" y="60" font-size="13" fill="#5b21b6">对称矩阵 A = [[2,1],[1,2]]</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-unit" aria-pressed="true">原像（单位圆）</button>
+                <button type="button" id="btn-image" aria-pressed="true">像（椭圆）</button>
+                <button type="button" id="btn-eig" aria-pressed="true">特征方向</button>
+                <output id="eig-out" aria-live="polite">已显示单位圆、椭圆与两个特征方向</output>
+            </div>
+            <figcaption>图 2-1　以对称矩阵 A=[[2,1],[1,2]] 为例：单位圆经线性变换后成为椭圆，椭圆长短轴方向正是特征方向，半轴长等于特征值大小。示例矩阵与数值为教学示意。</figcaption>
+        </figure>
 
         <p>如果 A 是一个 <strong>对称矩阵 (symmetric matrix)</strong>——即 A = A<sup>T</sup>——那么它的特征值全部是实数，且特征向量可以选为正交的。这个性质在多元统计中至关重要，因为协方差矩阵 Σ 就是对称的。对称矩阵的<strong>谱分解 (spectral decomposition)</strong> 为：</p>
 
@@ -119,7 +177,7 @@ Q 的每一列是对应的特征向量</code></pre>
         <pre><code>A = U Σ Vᵀ
 
 其中 U 是 m × m 正交矩阵（左奇异向量）
-Σ 是 m × n 对角矩阵（奇异值 σ₁ ≥ σ₂ ≥ ... ≥ σᵣ > 0）
+Σ：m × n 对角阵（奇异值 σ₁ ≥ … ≥ σᵣ）
 V 是 n × n 正交矩阵（右奇异向量）</code></pre>
 
         <p>SVD 是多元分析中最重要的矩阵分解，没有之一。为什么？因为 <strong>PCA 可以完全等价地通过 SVD 来实现</strong>——你不需要对协方差矩阵做特征值分解，而是直接对中心化后的数据矩阵做 SVD，右奇异向量就是主成分方向，奇异值的平方就是特征值。SVD 的数值稳定性更好，而且可以直接处理 n < p 的高维情况（而协方差矩阵在这种情况下是奇异的）。</p>
@@ -143,10 +201,13 @@ V 是 n × n 正交矩阵（右奇异向量）</code></pre>
         <p><strong>协方差矩阵 (covariance matrix)：</strong></p>
         <pre><code>Σ = Cov(X) = E[(X - μ)(X - μ)ᵀ]
 
-   = ⎡ Var(X₁)   Cov(X₁,X₂)  ...  Cov(X₁,Xₚ) ⎤
-     ⎢ Cov(X₂,X₁)  Var(X₂)   ...  Cov(X₂,Xₚ) ⎥
-     ⎢    ⋮          ⋮        ⋱      ⋮       ⎥
-     ⎣ Cov(Xₚ,X₁) Cov(Xₚ,X₂) ...  Var(Xₚ)   ⎦</code></pre>
+    ⎡ σ₁₁  σ₁₂  …  σ₁ₚ ⎤
+Σ = ⎢ σ₂₁  σ₂₂  …  σ₂ₚ ⎥
+    ⎢  ⋮    ⋮   ⋱   ⋮  ⎥
+    ⎣ σₚ₁  σₚ₂  …  σₚₚ ⎦
+
+对角元 σᵢᵢ = Var(Xᵢ)
+非对角元 σᵢⱼ = Cov(Xᵢ, Xⱼ)</code></pre>
 
         <p>协方差矩阵的性质极其重要，请一定记住：</p>
         <ul>
@@ -192,25 +253,31 @@ Cov(Y) = A Σ Aᵀ</code></pre>
 # 生成随机数据：100个样本，3个变量
 np.random.seed(42)
 n, p = 100, 3
-X = np.random.randn(n, p) * np.array([1, 5, 2])  # 不同尺度
+scales = np.array([1, 5, 2])
+X = np.random.randn(n, p) * scales
+# 上面 scales 表示不同尺度
 
 # 样本均值向量
 mean_vec = np.mean(X, axis=0)
 print("均值向量:", mean_vec)
 
-# 样本协方差矩阵（注意 ddof=1 用无偏估计）
-S = np.cov(X, rowvar=False)  # rowvar=False 表示每列是一个变量
+# 样本协方差矩阵（ddof=1 为无偏估计）
+# 默认每行一个变量，这里每列一个变量
+S = np.cov(X, rowvar=False)
 print("协方差矩阵:\n", S)
 
 # 样本相关矩阵
 corr = np.corrcoef(X, rowvar=False)
 print("相关矩阵:\n", corr)
 
-# 验证：相关矩阵 = 对角标准差^-1 * 协方差矩阵 * 对角标准差^-1
-std_inv = np.diag(1 / np.std(X, axis=0, ddof=1))
+# 验证：相关矩阵 = D⁻¹ S D⁻¹，D 为对角标准差矩阵
+sd = np.std(X, axis=0, ddof=1)
+std_inv = np.diag(1 / sd)
 corr_from_cov = std_inv @ S @ std_inv
-print("从协方差矩阵计算的相关矩阵:\n", corr_from_cov)
-print("验证成功:", np.allclose(corr, corr_from_cov))</code></pre>
+print("由协方差矩阵得到相关矩阵:")
+print(corr_from_cov)
+ok = np.allclose(corr, corr_from_cov)
+print("验证成功:", ok)</code></pre>
 
         <div class="tip">
             <strong>关键点：</strong>注意代码中的 <code>rowvar=False</code>——这是用 NumPy 做多元分析最常见的坑之一。NumPy 的 <code>np.cov</code> 默认把<strong>行</strong>当作变量（每行一个变量），但我们的数据矩阵通常是<strong>每列一个变量</strong>。忘记设置 <code>rowvar=False</code> 会导致协方差矩阵维度完全错误。我在一次讲座中亲眼看到一位博士生在这个细节上花了两个小时排查问题——所以请一定记住这个参数。
@@ -239,8 +306,39 @@ print("验证成功:", np.allclose(corr, corr_from_cov))</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="03.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-eig');
+    if (!fig) return;
+    var pairs = [
+        ['btn-unit', 'g-unit'],
+        ['btn-image', 'g-image'],
+        ['btn-eig', 'g-eig']
+    ];
+    var out = document.getElementById('eig-out');
+    function sync() {
+        var on = [];
+        pairs.forEach(function (p) {
+            var b = document.getElementById(p[0]);
+            var g = fig.querySelector('#' + p[1]);
+            var vis = b.getAttribute('aria-pressed') === 'true';
+            g.style.display = vis ? '' : 'none';
+            if (vis) on.push(b.textContent);
+        });
+        out.textContent = '已显示：' + (on.join('、') || '（无）');
+    }
+    pairs.forEach(function (p) {
+        var b = document.getElementById(p[0]);
+        b.addEventListener('click', function () {
+            b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+            sync();
+        });
+    });
+    sync();
+})();
+</script>
 </body>
 </html>
