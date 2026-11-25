@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第05章　数据预处理与可视化</h1>
+            <p class="article-meta">缺失值机制 · 异常值检测 · 标准化与变换 · 散点图矩阵 · 平行坐标 · 相关性热图</p>
+        </header>
 
         <h2>数据不会自动变干净——预处理是真正的"脏活"</h2>
 
@@ -72,7 +78,8 @@
 
         <pre><code>import pandas as pd
 import numpy as np
-from sklearn.experimental import enable_iterative_imputer
+from sklearn.experimental import \
+    enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
 # 模拟一个有缺失值的数据集
@@ -84,12 +91,15 @@ mask = np.random.random(data.shape) < 0.1
 data[mask] = np.nan
 
 # 多重插补
-imputer = IterativeImputer(max_iter=10, random_state=42)
+imputer = IterativeImputer(
+    max_iter=10, random_state=42)
 data_imputed = imputer.fit_transform(data)
 
-# 比较插补前后的均值和协方差
-print("原始（删除缺失后）均值:", np.nanmean(data, axis=0))
-print("插补后均值:", np.mean(data_imputed, axis=0))</code></pre>
+# 比较插补前后的均值
+m0 = np.nanmean(data, axis=0)
+m1 = np.mean(data_imputed, axis=0)
+print("原始（去掉缺失）均值:", m0)
+print("插补后均值:", m1)</code></pre>
 
         <div class="warning">
             <strong>注意：</strong>处理缺失值没有"万能药"。如果你的数据是 MCAR，列表删除简单有效。如果是 MAR，多重插补是推荐方法。如果是 MNAR，你需要专门的敏感性分析——这不是一个简单的技术问题，而是需要结合领域知识来判断。一个常见的错误是：不管缺失机制，一律用均值插补——这样得到的"干净"数据集其实比原始数据更误导人。
@@ -111,7 +121,23 @@ print("插补后均值:", np.mean(data_imputed, axis=0))</code></pre>
             <li><strong>杠杆值 (leverage)：</strong>在线性回归中，杠杆值衡量每个样本对回归估计的影响程度。高杠杆点可能不是异常值（y 方向），但对模型参数影响很大。</li>
         </ul>
 
-        <pre><code>from scipy.spatial.distance import mahalanobis
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="马氏距离平方公式，可横向滚动">
+                <math display="block" aria-label="D 平方等于 x 减样本均值的转置乘样本协方差矩阵的逆再乘 x 减样本均值">
+                    <mrow>
+                        <msup><mi>D</mi><mn>2</mn></msup><mo>=</mo>
+                        <msup><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>)</mo></mrow><mo>⊤</mo></msup>
+                        <msup><mi>S</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup>
+                        <mrow><mo>(</mo><mi>x</mi><mo>−</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>)</mo></mrow>
+                        <mo>∼</mo><msup><mi>χ</mi><mn>2</mn></msup><mrow><mo>(</mo><mi>p</mi><mo>)</mo></mrow>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (5.2)　多元异常值检测：样本的马氏距离平方近似服从自由度 p 的 χ² 分布，超过分位数阈值即可判为多元异常值。</p>
+        </div>
+
+        <pre><code>from scipy.spatial.distance import \
+    mahalanobis
 from scipy.stats import chi2
 
 # 计算每个样本的马氏距离
@@ -119,11 +145,13 @@ def mahalanobis_distance(X):
     cov = np.cov(X, rowvar=False)
     inv_cov = np.linalg.inv(cov)
     mean = np.mean(X, axis=0)
-    dist = [mahalanobis(x, mean, inv_cov) for x in X]
+    dist = [mahalanobis(x, mean, inv_cov)
+            for x in X]
     return np.array(dist)
 
 dist = mahalanobis_distance(data_imputed)
-p_value = 1 - chi2.cdf(dist**2, df=data_imputed.shape[1])
+dfree = data_imputed.shape[1]
+p_value = 1 - chi2.cdf(dist**2, df=dfree)
 outliers = np.where(p_value < 0.025)[0]
 print(f"检测到 {len(outliers)} 个多元异常值")</code></pre>
 
@@ -132,14 +160,67 @@ print(f"检测到 {len(outliers)} 个多元异常值")</code></pre>
         <p>许多多元分析方法（PCA、聚类、判别分析）对变量的尺度<strong>极其敏感</strong>。一个以"万元"为单位的变量和一个以"元"为单位的变量，前者的方差天然是后者的 10⁸ 倍——如果不对数据进行标准化，计算结果会被量大纲的变量主导，结果毫无意义。</p>
 
         <h3>Z-score 标准化</h3>
+
+        <figure id="fig-scale">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f5-title f5-desc">
+                <title id="f5-title">标准化前后点云与协方差椭圆的对比</title>
+                <desc id="f5-desc">左图为原始尺度下的点云：一个变量数值范围远大于另一个，协方差椭圆被拉得极长，第一主成分几乎由一个变量主导。切换到标准化后，点云变为近似等量纲，椭圆趋于圆润，多个变量共同贡献变异。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <line x1="60" y1="190" x2="700" y2="190" stroke="#cbd5e1"/>
+                <line x1="380" y1="40" x2="380" y2="340" stroke="#cbd5e1"/>
+                <g id="g-raw">
+                    <ellipse cx="380" cy="190" rx="255" ry="42" transform="rotate(3 380 190)" fill="none" stroke="#0ea5e9" stroke-width="2"/>
+                    <g fill="#0ea5e9">
+                        <circle cx="140" cy="160" r="5"/><circle cx="180" cy="180" r="5"/><circle cx="220" cy="150" r="5"/><circle cx="260" cy="200" r="5"/><circle cx="300" cy="210" r="5"/><circle cx="340" cy="180" r="5"/><circle cx="380" cy="195" r="5"/><circle cx="420" cy="175" r="5"/><circle cx="460" cy="205" r="5"/><circle cx="500" cy="185" r="5"/><circle cx="540" cy="210" r="5"/><circle cx="580" cy="200" r="5"/><circle cx="620" cy="175" r="5"/>
+                    </g>
+                    <text x="70" y="70" font-size="14" fill="#0e7490" font-weight="600">原始尺度（未标准化）</text>
+                    <text x="70" y="90" font-size="12" fill="#0e7490">第一主成分 ≈ 单一变量主导</text>
+                </g>
+                <g id="g-std" style="display:none">
+                    <ellipse cx="380" cy="190" rx="125" ry="95" transform="rotate(-20 380 190)" fill="none" stroke="#7c3aed" stroke-width="2"/>
+                    <g fill="#7c3aed">
+                        <circle cx="260" cy="110" r="5"/><circle cx="300" cy="150" r="5"/><circle cx="340" cy="100" r="5"/><circle cx="380" cy="160" r="5"/><circle cx="420" cy="130" r="5"/><circle cx="460" cy="200" r="5"/><circle cx="500" cy="180" r="5"/><circle cx="320" cy="250" r="5"/><circle cx="400" cy="260" r="5"/><circle cx="470" cy="270" r="5"/><circle cx="270" cy="220" r="5"/><circle cx="430" cy="90" r="5"/>
+                    </g>
+                    <text x="70" y="70" font-size="14" fill="#6d28d9" font-weight="600">标准化后</text>
+                    <text x="70" y="90" font-size="12" fill="#6d28d9">多个变量共同贡献变异</text>
+                </g>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-raw" aria-pressed="false">原始尺度</button>
+                <button type="button" id="btn-std" aria-pressed="true">标准化后</button>
+                <output id="scale-out" aria-live="polite">当前显示：标准化后的点云</output>
+            </div>
+            <figcaption>图 5-1　同一组数据在不同尺度下的形状：未标准化时量纲大的变量主导协方差结构，标准化后各变量贡献拉平。点云与椭圆为“教学示意”，非实测数据。</figcaption>
+        </figure>
         <pre><code>z = (x - μ) / σ
 
-将每个变量变换为均值为0、标准差为1的分布。这是最常用的标准化方法。</code></pre>
+将每个变量变换为均值为0、标准差为1的分布。
+这是最常用的标准化方法。</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Z-score 标准化公式，可横向滚动">
+                <math display="block" aria-label="标准化 z 下标 j 等于 x 下标 j 减均值 μ 下标 j 再除以标准差 σ 下标 j">
+                    <mrow>
+                        <msub><mi>z</mi><mi>j</mi></msub><mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>x</mi><mi>j</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>j</mi></msub></mrow>
+                            <msub><mi>σ</mi><mi>j</mi></msub>
+                        </mfrac>
+                        <mo>,</mo><mspace width="1em"/>
+                        <msub><mi>μ</mi><mi>j</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac>
+                        <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+                        <msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (5.1)　Z-score 标准化。对每个变量 j 分别减去其均值、除以标准差，变换后各变量均值为 0、方差为 1。</p>
+        </div>
 
         <h3>Min-Max 缩放</h3>
         <pre><code>x' = (x - x_min) / (x_max - x_min)
 
-将数据映射到 [0, 1] 区间。对异常值敏感，因为最值可能被异常值拉偏。</code></pre>
+将数据映射到 [0, 1] 区间。
+对异常值敏感：最值可能被异常值拉偏。</code></pre>
 
         <h3>Box-Cox 变换</h3>
         <p>当数据呈偏态分布时，Box-Cox 变换可以使其近似正态：</p>
@@ -166,14 +247,18 @@ import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
 
 iris = load_iris()
-df = pd.DataFrame(iris.data, columns=iris.feature_names)
-df['species'] = iris.target_names[iris.target]
+df = pd.DataFrame(
+    iris.data, columns=iris.feature_names)
+y = iris.target_names[iris.target]
+df['species'] = y
 
 # 散点图矩阵（按品种着色）
-sns.pairplot(df, hue='species', diag_kind='kde')
+sns.pairplot(df, hue='species',
+             diag_kind='kde')
 plt.tight_layout()
 plt.show()
-# 可清晰看到：Setosa 品种的花瓣长宽与其他两个品种明显分离</code></pre>
+# 可见：Setosa 的花瓣长宽
+# 与其他两个品种明显分离</code></pre>
 
         <p>散点图矩阵的局限性也很明显：当变量数 p 很大时（比如 p > 10），网格会大到无法辨认——每个单元格太小了。这时候就需要其他可视化方法。</p>
 
@@ -195,8 +280,11 @@ plt.show()
 
 # 计算相关矩阵并画热图
 corr_matrix = df.iloc[:, :4].corr()
-sns.clustermap(corr_matrix, annot=True, cmap='RdBu_r',
-               vmin=-1, vmax=1, figsize=(8, 6))
+sns.clustermap(corr_matrix,
+               annot=True,
+               cmap='RdBu_r',
+               vmin=-1, vmax=1,
+               figsize=(8, 6))
 # annot=True 显示相关系数值
 # clustermap 自动对行列进行层次聚类重排</code></pre>
 
@@ -206,7 +294,7 @@ sns.clustermap(corr_matrix, annot=True, cmap='RdBu_r',
 
         <p>这个故事值得反复讲——因为我在不同场合已经听过至少五个人讲述过几乎一模一样的教训。</p>
 
-        <p>一位数据科学家用 PCA 分析客户消费数据，包含 20 个变量：年消费金额（几千到几十万）、登录次数（几十到几百）、浏览时长（几分钟到几小时）、以及各种消费类别的比例（0 到 1 之间的小数）。她直接对原始数据做了 PCA，画出前两个主成分，发现第一主成分几乎完全由"年消费金额"这一个变量驱动，解释了数据总变异的 95%。她兴奋地告诉团队："客户的消费模式差不多就是金额这一个维度决定的！"</p>
+        <p>一位数据科学家用 PCA 分析客户消费数据,包含 20 个变量:年消费金额(几千到几十万)、登录次数(几十到几百)、浏览时长(几分钟到几小时)、以及各种消费类别的比例(0 到 1 之间的小数)。她直接对原始数据做了 PCA,画出前两个主成分,发现第一主成分几乎完全由"年消费金额"这一个变量驱动,解释了数据总变异的 95%。她兴奋地告诉团队：“客户的消费模式差不多就是金额这一个维度决定的！”（故事中的百分比为教学示意。）</p>
 
         <p>团队的另一位同事看了之后问了一句："你标准化了吗？"空气突然安静了。重新标准化后做 PCA，前两个主成分只解释了 45% 的变异，而且多个变量都有贡献——消费模式原来是非常多元化的，远不止"金额"一个维度。之前的"发现"完全是假象——只是年消费金额的量纲（数值范围几千到几十万）天然主导了协方差矩阵的特征值计算。</p>
 
@@ -227,8 +315,31 @@ sns.clustermap(corr_matrix, annot=True, cmap='RdBu_r',
             <a href="index.html">📖 返回目录</a>
             <a href="06.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-scale');
+    if (!fig) return;
+    var bRaw = document.getElementById('btn-raw');
+    var bStd = document.getElementById('btn-std');
+    var gRaw = fig.querySelector('#g-raw');
+    var gStd = fig.querySelector('#g-std');
+    var out = document.getElementById('scale-out');
+    function show(raw) {
+        var b = raw ? bRaw : bStd;
+        var o = raw ? bStd : bRaw;
+        b.setAttribute('aria-pressed', 'true');
+        o.setAttribute('aria-pressed', 'false');
+        gRaw.style.display = raw ? '' : 'none';
+        gStd.style.display = raw ? 'none' : '';
+        out.textContent = '当前显示：' + (raw ? '原始尺度（未标准化）的点云' : '标准化后的点云');
+    }
+    bRaw.addEventListener('click', function () { show(true); });
+    bStd.addEventListener('click', function () { show(false); });
+    show(false);
+})();
+</script>
 </body>
 </html>
