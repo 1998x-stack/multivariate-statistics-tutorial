@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第07章　多元回归基础</h1>
+            <p class="article-meta">最小二乘与正规方程 · 回归诊断与 VIF · 变量选择 · 岭回归与 LASSO</p>
+        </header>
 
         <h2>从相关到因果的第一步</h2>
 
@@ -69,6 +75,44 @@ X 是 n × (p+1) 设计矩阵（第一列全为1，代表截距项）
         <pre><code>XᵀX β̂ = XᵀY
 
 解为：β̂ = (XᵀX)⁻¹ XᵀY</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="最小二乘估计公式，可横向滚动">
+                <math display="block" aria-label="β 帽等于 X 转置 X 的逆乘 X 转置 Y">
+                    <mrow>
+                        <mover><mi>β</mi><mo>^</mo></mover><mo>=</mo>
+                        <msup><mrow><mo>(</mo><msup><mi>X</mi><mo>⊤</mo></msup><mi>X</mi><mo>)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup>
+                        <msup><mi>X</mi><mo>⊤</mo></msup><mi>Y</mi>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (7.1)　最小二乘估计（正规方程的解）。它把响应向量 Y 正交投影到设计矩阵 X 的列空间上。</p>
+        </div>
+
+        <figure id="fig-ols">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f7-title f7-desc">
+                <title id="f7-title">最小二乘的几何：把 Y 正交投影到 X 的列空间</title>
+                <desc id="f7-desc">平面代表设计矩阵 X 的列空间，响应向量 Y 在该平面之外；拟合值 Ŷ 是 Y 在平面上的正交投影，残差 e 垂直于平面。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <polygon points="200,300 460,300 580,150 320,150" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
+                <line x1="200" y1="300" x2="430" y2="70" stroke="#1f2937" stroke-width="2.5"/>
+                <line id="ln-fit" x1="200" y1="300" x2="360" y2="195" stroke="#7c3aed" stroke-width="2.5"/>
+                <line id="ln-res" x1="360" y1="195" x2="430" y2="70" stroke="#ef4444" stroke-width="2" stroke-dasharray="7 5"/>
+                <rect id="ln-right" x="352" y="187" width="14" height="14" fill="none" stroke="#ef4444"/>
+                <circle cx="200" cy="300" r="4.5" fill="#1f2937"/>
+                <text x="186" y="320" font-size="14" fill="#1f2937">O</text>
+                <text x="438" y="66" font-size="15" fill="#1f2937" font-weight="600">Y</text>
+                <text id="tx-fit" x="300" y="215" font-size="14" fill="#6d28d9" font-weight="600">Ŷ = Xβ̂</text>
+                <text id="tx-res" x="410" y="140" font-size="13" fill="#b91c1c">e = Y − Ŷ</text>
+                <text x="250" y="175" font-size="13" fill="#5b21b6">span(X)：X 的列空间</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-fit" aria-pressed="true">拟合值 Ŷ</button>
+                <button type="button" id="btn-res" aria-pressed="true">残差 e</button>
+                <output id="ols-out" aria-live="polite">已显示拟合值与残差</output>
+            </div>
+            <figcaption>图 7-1　最小二乘的几何意义：拟合值 Ŷ 是 Y 在 span(X) 上的正交投影，残差 e 垂直于该平面。这也是 β̂=(XᵀX)⁻¹XᵀY 的直观来源（教学示意）。</figcaption>
+        </figure>
 
         <p>这个简单的公式是整个回归分析的基石。从几何角度看，β̂ 将 Y 投影到了由 X 的列向量张成的空间上，拟合值 Ŷ = Xβ̂ = X(XᵀX)⁻¹XᵀY = HY，其中 H 称为<strong>投影矩阵 (hat matrix)</strong>，它把 Y 映射到拟合值 Ŷ。</p>
 
@@ -99,7 +143,8 @@ X 是 n × (p+1) 设计矩阵（第一列全为1，代表截距项）
 
         <pre><code>VIFⱼ = 1 / (1 - Rⱼ²)
 
-其中 Rⱼ² 是第 j 个自变量对其他所有自变量做回归的 R²</code></pre>
+其中 Rⱼ² 是第 j 个自变量
+对其他所有自变量做回归的 R²</code></pre>
 
         <p>经验法则：VIF > 10 表明存在严重的多重共线性，VIF > 5 就应该引起注意了。</p>
 
@@ -133,16 +178,20 @@ X 是 n × (p+1) 设计矩阵（第一列全为1，代表截距项）
         <p>模型的优劣不能只看 R²（它会随着变量增多而单调增加，导致过拟合）。常用的准则包括：</p>
 
         <pre><code>AIC (Akaike Information Criterion):
-AIC = -2·ln(L) + 2·k    （k 是参数个数，惩罚模型复杂度）
+  AIC = -2·ln(L) + 2·k
+  （k 是参数个数，惩罚复杂度）
 
 BIC (Bayesian Information Criterion):
-BIC = -2·ln(L) + ln(n)·k  （对复杂模型的惩罚更严厉）
+  BIC = -2·ln(L) + ln(n)·k
+  （对复杂模型的惩罚更严厉）
 
 调整 R² (Adjusted R²):
-R²_adj = 1 - [(1-R²)(n-1)/(n-p-1)]  （对变量个数做了惩罚）
+  R²_adj = 1 - (1-R²)(n-1)/(n-p-1)
+  （对变量个数做了惩罚）
 
 Mallows' Cp:
-Cp = RSS/σ² + 2p - n     （衡量预测误差的期望）</code></pre>
+  Cp = RSS/σ² + 2p - n
+  （衡量预测误差的期望）</code></pre>
 
         <p>这些准则的共同逻辑是：在<strong>拟合优度</strong>和<strong>模型复杂度</strong>之间做权衡。BIC 的惩罚最严厉，倾向于选择更简约的模型；AIC 相对宽松；调整 R² 和 Cp 在实践中也很常用。</p>
 
@@ -173,7 +222,8 @@ Cp = RSS/σ² + 2p - n     （衡量预测误差的期望）</code></pre>
 
         <h3>弹性网 (Elastic Net)</h3>
         <p>结合了岭回归和 LASSO 的优点：</p>
-        <pre><code>β̂_enet = argmin { ||Y - Xβ||² + λ₁||β||₁ + λ₂||β||² }</code></pre>
+        <pre><code>β̂_enet = argmin { ||Y - Xβ||²
+                  + λ₁||β||₁ + λ₂||β||² }</code></pre>
 
         <p>它既能像 LASSO 那样做变量选择，又能像岭回归那样处理群组相关（当一组变量高度相关时，LASSO 倾向于只选其中一个，弹性网倾向于全选或全不选）。</p>
 
@@ -202,45 +252,53 @@ Cp = RSS/σ² + 2p - n     （衡量预测误差的期望）</code></pre>
         <p>下面我们用经典的波士顿房价数据集（现在 sklearn 中已移除，但理念通用）来演示变量选择的过程。</p>
 
         <pre><code>import pandas as pd
-import numpy as np
-from sklearn.datasets import fetch_california_housing
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.datasets import (
+    fetch_california_housing)
+from sklearn.model_selection import (
+    train_test_split)
+from sklearn.linear_model import (
+    LinearRegression, Ridge, Lasso)
+from sklearn.preprocessing import (
+    StandardScaler)
+from sklearn.metrics import (
+    mean_squared_error)
 import statsmodels.api as sm
 
 # 加载数据
 housing = fetch_california_housing()
-X = pd.DataFrame(housing.data, columns=housing.feature_names)
+X = pd.DataFrame(
+    housing.data,
+    columns=housing.feature_names)
 y = housing.target
 
 # 划分训练集和测试集
-X_train, X_test, y_train, y_test = train_test_split(
+Xtr, Xte, ytr, yte = train_test_split(
     X, y, test_size=0.2, random_state=42)
 
 # OLS 回归
-X_train_sm = sm.add_constant(X_train)
-model_ols = sm.OLS(y_train, X_train_sm).fit()
+Xtr_sm = sm.add_constant(Xtr)
+model_ols = sm.OLS(ytr, Xtr_sm).fit()
 print(model_ols.summary())
-# 查看哪些变量显著，计算 VIF
+# 查看哪些变量显著，并计算 VIF
 
 # 岭回归
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+Xtr_s = scaler.fit_transform(Xtr)
+Xte_s = scaler.transform(Xte)
 
 ridge = Ridge(alpha=1.0)
-ridge.fit(X_train_scaled, y_train)
-y_pred_ridge = ridge.predict(X_test_scaled)
-print("岭回归 MSE:", mean_squared_error(y_test, y_pred_ridge))
+ridge.fit(Xtr_s, ytr)
+y_pred_ridge = ridge.predict(Xte_s)
+mse = mean_squared_error(yte, y_pred_ridge)
+print("岭回归 MSE:", mse)
 
 # LASSO - 自动变量选择
 lasso = Lasso(alpha=0.01)
-lasso.fit(X_train_scaled, y_train)
-y_pred_lasso = lasso.predict(X_test_scaled)
-print("LASSO 系数:\n",
-      pd.Series(lasso.coef_, index=housing.feature_names))
+lasso.fit(Xtr_s, ytr)
+y_pred_lasso = lasso.predict(Xte_s)
+print("LASSO 系数:")
+print(pd.Series(lasso.coef_,
+                index=housing.feature_names))
 # 可以看到哪些变量的系数被压缩到了 0</code></pre>
 
         <p>通过这个案例，你可以直观地看到：OLS 给出了所有变量的系数和 p 值（但可能某些 VIF 很大）；岭回归收缩了所有系数但没有清零；LASSO 自动选择了一部分变量（将不重要的系数压缩到 0）。在实际项目中，我通常会比较这三种方法在交叉验证下的预测误差，选择表现最好的那个。</p>
@@ -272,8 +330,31 @@ print("LASSO 系数:\n",
             <a href="index.html">📖 返回目录</a>
             <a href="08.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-ols');
+    if (!fig) return;
+    var bF = document.getElementById('btn-fit');
+    var bR = document.getElementById('btn-res');
+    var out = document.getElementById('ols-out');
+    function sync() {
+        var f = bF.getAttribute('aria-pressed') === 'true';
+        var r = bR.getAttribute('aria-pressed') === 'true';
+        ['ln-fit', 'tx-fit'].forEach(function (id) { fig.querySelector('#' + id).style.display = f ? '' : 'none'; });
+        ['ln-res', 'tx-res', 'ln-right'].forEach(function (id) { fig.querySelector('#' + id).style.display = r ? '' : 'none'; });
+        out.textContent = '显示状态：拟合值 ' + (f ? '开' : '关') + '，残差 ' + (r ? '开' : '关');
+    }
+    function toggle(btn) {
+        btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        sync();
+    }
+    bF.addEventListener('click', function () { toggle(bF); });
+    bR.addEventListener('click', function () { toggle(bR); });
+    sync();
+})();
+</script>
 </body>
 </html>
