@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,14 +42,55 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第04章　均值向量与协方差检验</h1>
+            <p class="article-meta">Hotelling T² · 两样本检验 · MANOVA 四统计量 · Box's M · Profile 分析</p>
+        </header>
 
         <h2>从描述到推断：打开多元假设检验的大门</h2>
 
         <p>大家好，欢迎继续学习。前两章我们打好了数学基础，学习了多元正态分布的核心性质。这些工具是用来做什么的？归根结底，是要回答这样的问题："A 组和 B 组在这 10 个指标上有没有显著差异？""这个新药的疗效是否优于安慰剂？""不同年级的学生在多个测试维度上表现是否相同？"这些问题在现实中被问了无数次，而答案的获取方法，正是<strong>多元假设检验 (multivariate hypothesis testing)</strong>——本章的核心内容。</p>
 
         <p>有人会说："这些检验我逐个变量做 t 检验不就行了？"好问题。想象一个场景：你有一个包含 20 个变量的临床试验数据。如果每个变量单独做 t 检验（α=0.05），20 次检验中至少有一次假阳性的概率是 1 - 0.95²⁰ ≈ 64%。什么概念？你的"显著性发现"有近三分之二的概率是假的。多元假设检验的核心价值，就是用一个<strong>全局检验</strong>同时考虑所有变量，将整体犯第一类错误的概率控制在预定水平上。</p>
+
+        <figure id="fig-fwer">
+            <svg viewBox="0 0 760 380" role="img" aria-labelledby="f4-title f4-desc">
+                <title id="f4-title">逐变量检验次数与假阳性概率的关系</title>
+                <desc id="f4-desc">柱状图展示在名义显著性水平 α 下，做 k 次独立检验时至少出现一次假阳性的概率随 k 增长而迅速接近 1；红色虚线标出 α=0.05。</desc>
+                <rect width="760" height="380" fill="#fafafe"/>
+                <line x1="50" y1="320" x2="710" y2="320" stroke="#94a3b8"/>
+                <line x1="50" y1="40" x2="50" y2="320" stroke="#94a3b8"/>
+                <line x1="50" y1="180" x2="710" y2="180" stroke="#e2e8f0"/>
+                <line x1="50" y1="40" x2="710" y2="40" stroke="#e2e8f0"/>
+                <line x1="50" y1="306" x2="710" y2="306" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6 4"/>
+                <text x="16" y="324" font-size="12" fill="#475569">0</text>
+                <text x="6" y="184" font-size="12" fill="#475569">0.5</text>
+                <text x="6" y="44" font-size="12" fill="#475569">1.0</text>
+                <text x="614" y="300" font-size="12" fill="#b91c1c">α=0.05</text>
+                <g id="fwer-bars" fill="#7c3aed">
+                    <rect id="bar0" x="78" y="306.0" width="64" height="14.0"/>
+                    <rect id="bar1" x="188" y="256.7" width="64" height="63.3"/>
+                    <rect id="bar2" x="298" y="207.6" width="64" height="112.4"/>
+                    <rect id="bar3" x="408" y="140.4" width="64" height="179.6"/>
+                    <rect id="bar4" x="518" y="61.5" width="64" height="258.5"/>
+                    <rect id="bar5" x="628" y="41.7" width="64" height="278.3"/>
+                </g>
+                <g font-size="12" fill="#475569" text-anchor="middle">
+                    <text x="110" y="338">1</text><text x="220" y="338">5</text><text x="330" y="338">10</text>
+                    <text x="440" y="338">20</text><text x="550" y="338">50</text><text x="660" y="338">100</text>
+                </g>
+                <text x="330" y="368" font-size="12" fill="#334155" text-anchor="middle">独立的逐变量检验次数 k</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-a05" aria-pressed="true">α = 0.05</button>
+                <button type="button" id="btn-a01" aria-pressed="false">α = 0.01</button>
+                <output id="fwer-out" aria-live="polite">α=0.05，k=20 时假阳性概率约 64%</output>
+            </div>
+            <figcaption>图 4-1　逐变量检验的假阳性累积：按 <span class="fig-note">1−(1−α)<sup>k</sup></span> 计算（“教学示意”，非实测数据），k 次独立检验下“至少一次假阳性”的概率随 k 迅速接近 1。红色虚线为 α=0.05。</figcaption>
+        </figure>
 
         <h2>单样本均值向量检验</h2>
 
@@ -62,6 +104,20 @@ H₁: μ ≠ μ₀  （至少有一个分量不同）</code></pre>
         <pre><code>T² = n (x̄ - μ₀)ᵀ S⁻¹ (x̄ - μ₀)
 
 其中 x̄ 是样本均值向量，S 是样本协方差矩阵</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Hotelling T 平方统计量公式，可横向滚动">
+                <math display="block" aria-label="T 平方等于 n 乘以样本均值减目标均值的转置、乘样本协方差矩阵的逆、再乘样本均值减目标均值">
+                    <mrow>
+                        <msup><mi>T</mi><mn>2</mn></msup><mo>=</mo><mi>n</mi>
+                        <msup><mrow><mo>(</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><msub><mi>μ</mi><mn>0</mn></msub><mo>)</mo></mrow><mo>⊤</mo></msup>
+                        <msup><mi>S</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup>
+                        <mrow><mo>(</mo><mover><mi>x</mi><mo>‾</mo></mover><mo>−</mo><msub><mi>μ</mi><mn>0</mn></msub><mo>)</mo></mrow>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (4.1)　单样本 Hotelling T²。它是样本均值点到 μ₀ 的“广义距离平方”的 n 倍；当 p=1 时退化为 t²。</p>
+        </div>
 
         <p>仔细看这个公式：它把一元 t 统计量的平方 (x̄ - μ₀)²/(s²/n) 推广到了 p 维空间。T² 本质上就是<strong>样本均值到目标值的马氏距离</strong>乘以 n。如果 H₀ 成立，T² 服从自由度为 p 和 n-1 的 Hotelling T² 分布，它与 F 分布的关系为：</p>
 
@@ -89,7 +145,8 @@ H₁: μ ≠ μ₀  （至少有一个分量不同）</code></pre>
 
         <p>两样本 Hotelling T² 统计量为：</p>
 
-        <pre><code>T² = (n₁n₂/(n₁+n₂)) (x̄₁ - x̄₂)ᵀ S_pl⁻¹ (x̄₁ - x̄₂)
+        <pre><code>T² = (n₁n₂/(n₁+n₂))
+     · (x̄₁ - x̄₂)ᵀ S_pl⁻¹ (x̄₁ - x̄₂)
 
 其中 pooled 协方差矩阵：
 S_pl = [(n₁-1)S₁ + (n₂-1)S₂] / (n₁+n₂-2)</code></pre>
@@ -142,7 +199,8 @@ B = Σᵢ nᵢ (x̄ᵢ - x̄)(x̄ᵢ - x̄)ᵀ         （组间）</code></pre>
 
         <pre><code>M = [(n-k)ln|S_pl| - Σᵢ (nᵢ-1)ln|Sᵢ|]
 
-其中 S_pl 是 pooled 协方差矩阵，Sᵢ 是第 i 组的样本协方差矩阵</code></pre>
+其中 S_pl 是 pooled 协方差矩阵
+Sᵢ 是第 i 组的样本协方差矩阵</code></pre>
 
         <p>Box's M 统计量近似服从 F 分布或 χ² 分布（取决于修正版本）。</p>
 
@@ -165,16 +223,20 @@ B = Σᵢ nᵢ (x̄ᵢ - x̄)(x̄ᵢ - x̄)ᵀ         （组间）</code></pre>
         <p>三个检验是<strong>层级的</strong>：只有平行性不拒绝，才继续检验重合性；只有重合性不拒绝，才继续检验水平性。这种层级结构避免了多重比较问题。</p>
 
         <pre><code># Profile 分析的 R 代码示意
-# 假设 data 包含：group (A/B), time1-time4 四个满意度评分
+# 假设 data 含 group 与 time1-time4 四个评分
 
 # 检验平行性（交互作用）
-result_parallel <- manova(cbind(time1, time2, time3, time4) ~ group,
-                          data = data)
+result_parallel <- manova(
+    cbind(time1, time2,
+          time3, time4) ~ group,
+    data = data)
 summary(result_parallel, test = "Pillai")
 
 # 如果平行性成立，检验重合性
 # 将四个时间点的均值作为新的因变量
-data$mean_score <- rowMeans(data[, c("time1","time2","time3","time4")])
+cols <- c("time1","time2","time3","time4")
+scores <- data[, cols]
+data$mean_score <- rowMeans(scores)
 t.test(mean_score ~ group, data = data)</code></pre>
 
         <p>Profile 分析的应用场景包括：心理学中的重复测量设计、教育评估中的多时间点测试、市场调研中的产品属性评分等。</p>
@@ -196,31 +258,36 @@ t.test(mean_score ~ group, data = data)</code></pre>
         </ol>
 
         <pre><code>import pandas as pd
-import numpy as np
 from sklearn.datasets import load_iris
-from statsmodels.multivariate.manova import MANOVA
+from statsmodels.multivariate import \
+    manova as mvn
 
 # 加载数据
 iris = load_iris()
-df = pd.DataFrame(iris.data, columns=iris.feature_names)
-df['species'] = iris.target_names[iris.target]
+df = pd.DataFrame(
+    iris.data, columns=iris.feature_names)
+y = iris.target_names[iris.target]
+df['species'] = y
 
 # MANOVA
-manova = MANOVA.from_formula(
-    'sepal_length + sepal_width + petal_length + petal_width ~ species',
-    data=df)
-print(manova.mv_test())
-# 输出：Wilks Λ = 0.023, F ≈ 199, p < 2×10⁻¹²
-# 结论：三个品种之间有极其显著的差异
+X = 'sepal_length + sepal_width'
+X += ' + petal_length + petal_width'
+m = mvn.MANOVA.from_formula(
+    X + ' ~ species', data=df)
+print(m.mv_test())
+# 常见输出（教学示意）：
+#   Wilks Λ ≈ 0.023，F ≈ 199
+# 结论：三个品种差异极显著
 
 # Box's M 检验（可用 pingouin 库）
 # import pingouin as pg
-# box_m = pg.box_m(data=df.drop('species', axis=1),
-#                  groups=df['species'])
+# box_m = pg.box_m(
+#     data=df.drop('species', axis=1),
+#     groups=df['species'])
 # print(box_m)</code></pre>
 
         <div class="highlight">
-            <strong>结果解读：</strong>Wilks Λ = 0.023 是一个非常小的值，说明组内变异（W）远小于总变异（B+W）——即组间差异非常大。F 统计量约为 199，p 值小到几乎为零。我们可以很自信地说：这三个鸢尾花品种在四个测量指标上有显著差异。后续的判别分析（第17章）正是基于这种差异来建立分类规则的。
+            <strong>结果解读：</strong>（下述数值为在经典鸢尾花数据集上运行该代码的常见输出，属教学示意。）Wilks Λ ≈ 0.023 是一个非常小的值，说明组内变异（W）远小于总变异（B+W）——即组间差异非常大。F 统计量约为 199，p 值小到几乎为零。我们可以很自信地说：这三个鸢尾花品种在四个测量指标上有显著差异。后续的判别分析（第17章）正是基于这种差异来建立分类规则的。
         </div>
 
         <h2>踩坑故事：多重比较的陷阱</h2>
@@ -246,8 +313,38 @@ print(manova.mv_test())
             <a href="index.html">📖 返回目录</a>
             <a href="05.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-fwer');
+    if (!fig) return;
+    var ks = [1, 5, 10, 20, 50, 100];
+    var b05 = document.getElementById('btn-a05');
+    var b01 = document.getElementById('btn-a01');
+    var out = document.getElementById('fwer-out');
+    function render() {
+        var a = b05.getAttribute('aria-pressed') === 'true' ? 0.05 : 0.01;
+        var fwer20 = 0;
+        ks.forEach(function (k, i) {
+            var p = 1 - Math.pow(1 - a, k);
+            if (k === 20) fwer20 = p;
+            var r = fig.querySelector('#bar' + i);
+            r.setAttribute('y', (320 - p * 280).toFixed(1));
+            r.setAttribute('height', (p * 280).toFixed(1));
+        });
+        out.textContent = 'α=' + a.toFixed(2) + '，k=20 时假阳性概率约 ' + Math.round(fwer20 * 100) + '%';
+    }
+    function pick(keep, other) {
+        keep.setAttribute('aria-pressed', 'true');
+        other.setAttribute('aria-pressed', 'false');
+        render();
+    }
+    b05.addEventListener('click', function () { pick(b05, b01); });
+    b01.addEventListener('click', function () { pick(b01, b05); });
+    render();
+})();
+</script>
 </body>
 </html>
