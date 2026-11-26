@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第12章　因子估计与旋转</h1>
+            <p class="article-meta">主成分因子提取法 · 极大似然估计 · 主轴/Alpha/映像因子法 · 简单结构 · Varimax 与 Promax 旋转</p>
+        </header>
 
         <h2>开篇：有了模型，如何求解？</h2>
 
@@ -138,6 +144,21 @@
 
         <p>回忆因子模型 X = μ + LF + ε。如果我们在 L 右边乘一个正交矩阵 T（即 L* = LT），同时在 F 左边乘 Tᵀ（即 F* = TᵀF），那么 X = μ + L* F* + ε——模型完全不变！因为 (LT)(TᵀF) = LFF = LF。这意味着载荷矩阵有无穷多种等价的表达方式——它们产生完全相同的协方差矩阵 Σ = LLᵀ + Ψ。</p>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="因子旋转不变性公式，可横向滚动">
+                <math display="block" aria-label="载荷阵右乘正交矩阵 T、因子左乘 T 的转置，模型的协方差矩阵保持不变">
+                    <mrow>
+                        <msup><mi>L</mi><mo>*</mo></msup><mo>=</mo><mi>L</mi><mi>T</mi>
+                        <mo>,</mo><mspace width="1em"/>
+                        <msup><mi>F</mi><mo>*</mo></msup><mo>=</mo><msup><mi>T</mi><mo>⊤</mo></msup><mi>F</mi>
+                        <mo>,</mo><mspace width="1.5em"/>
+                        <msup><mi>L</mi><mo>*</mo></msup><msup><mrow><mo>(</mo><msup><mi>L</mi><mo>*</mo></msup><mo>)</mo></mrow><mo>⊤</mo></msup><mo>=</mo><mi>L</mi><msup><mi>L</mi><mo>⊤</mo></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (12.1)　旋转不变性：只要 <span class="math-inline">T</span> 是正交阵（<span class="math-inline">TᵀT = I</span>），旋转后的载荷与因子产生同一协方差矩阵，因此同一组数据存在无穷多个等价解，这正是我们可选择“最可解释”旋转的依据。</p>
+        </div>
+
         <p>这个"旋转自由度"既是麻烦也是机会。麻烦在于初始解不一定容易解释，机会在于我们可以选择一个最容易解释的旋转角度。这就是<strong>因子旋转 (factor rotation)</strong> 的动机。</p>
 
         <p>旋转的目标是实现<strong>简单结构 (simple structure)</strong>——Thurstone 在 1947 年提出的理想：</p>
@@ -150,12 +171,58 @@
 
         <p>简单结构使得因子解释变得清晰：这个变量归这个因子，那个变量归那个因子，一目了然。</p>
 
+        <figure id="fig-rot">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f12-title f12-desc">
+                <title id="f12-title">因子载荷的旋转与简单结构</title>
+                <desc id="f12-desc">六个变量在因子1-因子2平面上的载荷点：未旋转时两组变量方向模糊，施以 -30° 旋转后，一组落在因子1轴附近、另一组落在因子2轴附近，呈现简单结构。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <line x1="180" y1="190" x2="540" y2="190" stroke="#cbd5e1"/>
+                <line x1="360" y1="46" x2="360" y2="314" stroke="#cbd5e1"/>
+                <circle cx="360" cy="190" r="110" fill="none" stroke="#e2e8f0" stroke-dasharray="4 4"/>
+                <text x="532" y="208" font-size="12" fill="#64748b">因子 1</text>
+                <text x="368" y="56" font-size="12" fill="#64748b">因子 2</text>
+                <g id="g-load">
+                    <g fill="#7c3aed"><circle cx="456" cy="135" r="7"/><circle cx="463" cy="153" r="7"/><circle cx="448" cy="124" r="7"/></g>
+                    <g fill="#0ea5e9"><circle cx="305" cy="94" r="7"/><circle cx="323" cy="87" r="7"/><circle cx="294" cy="102" r="7"/></g>
+                    <g font-size="12" fill="#334155">
+                        <text x="466" y="140">V1</text><text x="473" y="158">V2</text><text x="432" y="122">V3</text>
+                        <text x="282" y="92">V4</text><text x="330" y="85">V5</text><text x="270" y="106">V6</text>
+                    </g>
+                </g>
+                <text x="80" y="30" font-size="13" fill="#334155">载荷散点：紫色组（V1-V3）· 蓝色组（V4-V6）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-rot12" aria-pressed="false">应用旋转（-30°）</button>
+                <output id="rot-out" aria-live="polite">未旋转：两组变量方向模糊</output>
+            </div>
+            <figcaption>图 12-1　因子旋转的几何意义：旋转是刚体转动，不改变各点到原点的距离（共同度）与点间夹角关系，但能让载荷群向因子轴靠拢，从而接近 Thurstone 的简单结构（载荷坐标为教学示意）。</figcaption>
+        </figure>
+
         <h2>正交旋转</h2>
 
         <p><strong>正交旋转 (Orthogonal Rotation)</strong> 保持因子之间的不相关性——旋转后的因子仍然正交（不相关）。最常用的正交旋转是 <strong>Varimax</strong>（方差最大旋转）。</p>
 
         <h3>Varimax 旋转</h3>
         <p>Varimax 的目标是最大化每个因子上载荷平方的方差。直观地说，它试图让每个因子只有少数几个大载荷和许多接近零的小载荷——这就是"两极分化"。Kaiser 在 1958 年提出的标准化 Varimax 准则至今仍是使用最广泛的旋转方法。</p>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Varimax 旋转准则公式，可横向滚动">
+                <math display="block" aria-label="Varimax 准则：对每个因子 j，最大化载荷四次方之和减去载荷平方和平方除以变量数的差">
+                    <mrow>
+                        <munder><mtext>max</mtext><mi>T</mi></munder>
+                        <mspace width="0.4em"/>
+                        <munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></munderover>
+                        <mrow><mo>[</mo>
+                            <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><msubsup><mi>l</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>4</mn></msubsup>
+                            <mo>−</mo>
+                            <mfrac><mn>1</mn><mi>p</mi></mfrac>
+                            <msup><mrow><mo>(</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><msubsup><mi>l</mi><mrow><mi>i</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mo>)</mo></mrow><mn>2</mn></msup>
+                        <mo>]</mo></mrow>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (12.2)　Varimax 准则（原始形式，已作简化）：对每个因子 <span class="math-inline">j</span> 最大化 <span class="math-inline">l⁴</span> 与 <span class="math-inline">l²</span> 均值的差，使载荷“非高即零”，从而接近简单结构。</p>
+        </div>
 
         <pre><code># Python：Varimax 旋转（通过 factor_analyzer 包）
 from factor_analyzer import Rotator
@@ -231,8 +298,28 @@ L_rotated = rotator.fit_transform(L)
             <a href="index.html">📖 返回目录</a>
             <a href="13.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-rot');
+    if (!fig) return;
+    var g = fig.querySelector('#g-load');
+    var btn = document.getElementById('btn-rot12');
+    var out = document.getElementById('rot-out');
+    function render() {
+        var on = btn.getAttribute('aria-pressed') === 'true';
+        g.setAttribute('transform', on ? 'rotate(-30 360 190)' : 'rotate(0 360 190)');
+        out.textContent = on ? '已旋转 -30°：两组变量分别贴近因子 1、因子 2 轴'
+                             : '未旋转：两组变量方向模糊';
+    }
+    btn.addEventListener('click', function () {
+        btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
