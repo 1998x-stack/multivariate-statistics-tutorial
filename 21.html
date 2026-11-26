@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第21章　对应分析</h1>
+            <p class="article-meta">列联表与 χ² 距离 · 标准化残差的 SVD · 行/列主坐标与惯性 · 对应图解读三原则 · MCA 与品牌认知案例</p>
+        </header>
 
         <h2>开篇：从数字到"地图"</h2>
 
@@ -78,7 +84,8 @@ Row₂           n₂₁   n₂₂   n₂₃   n₂.
 Row₃           n₃₁   n₃₂   n₃₃   n₃.
 列合计         n.₁   n.₂   n.₃   n.. = 总计
 
-nᵢ. = 第i行的合计，n.ⱼ = 第j列的合计，n.. = 表格总计</code></pre>
+nᵢ. = 第i行的合计，n.ⱼ = 第j列的合计
+n.. = 表格总计</code></pre>
 
         <p>对应分析不直接用频数做分析，而是引入两个核心概念：<strong>行剖面 (row profile)</strong> 和 <strong>χ²距离 (chi-square distance)</strong>。</p>
 
@@ -89,6 +96,22 @@ nᵢ. = 第i行的合计，n.ⱼ = 第j列的合计，n.. = 表格总计</code><
 其中 p.ⱼ = n.ⱼ / n.. 是第j列的边际概率。
 分母用 p.ⱼ 加权，相当于对高频列给予较小的权重，
 避免高频列支配距离计算。</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="卡方距离公式，可横向滚动">
+                <math display="block" aria-label="行 i 与行 k 的卡方距离平方等于各列上两个行剖面之差平方除以该列边际概率之和">
+                    <mrow>
+                        <msup><mi>d</mi><mn>2</mn></msup><mo>(</mo><msub><mtext>Row</mtext><mi>i</mi></msub><mo>,</mo><msub><mtext>Row</mtext><mi>k</mi></msub><mo>)</mo><mo>=</mo>
+                        <munder><mo>∑</mo><mi>j</mi></munder>
+                        <mfrac>
+                            <msup><mrow><mo>(</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>|</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>|</mo><mi>k</mi></mrow></msub><mo>)</mo></mrow><mn>2</mn></msup>
+                            <msub><mi>p</mi><mrow><mo>·</mo><mi>j</mi></mrow></msub>
+                        </mfrac>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (21.1)　χ² 距离：分母 <span class="math-inline">p<sub>·j</sub></span> 是第 j 列的边际概率，对高频列降权，使不同列频数尺度下的分布差异可比。</p>
+        </div>
 
         <p>χ²距离的妙处在于：它不仅考虑了分布差异，还通过列边际概率做了标准化，使得行之间的"分布差异"在不同列频数尺度下具有可比性。这个距离与χ²检验统计量有着直接的关系——事实上，列联表的总χ²统计量可以分解为所有行剖面到"重心"的χ²距离的加权和。</p>
 
@@ -108,17 +131,37 @@ c 为列边际概率向量（cⱼ = n.ⱼ/n..）。
 Zᵢⱼ = (pᵢⱼ - rᵢcⱼ) / √(rᵢcⱼ)
 
 其中 rᵢcⱼ 是在行与列独立假设下的期望概率。
-Z 的元素衡量了观测频数与独立期望之间的偏差（标准化后）。
+Z 的元素衡量了观测频数与独立期望
+之间的偏差（标准化后）。
 
 对 Z 进行奇异值分解 (SVD)：
 Z = U D Vᵀ
 
-其中 D 是对角矩阵，对角线元素 d₁ ≥ d₂ ≥ ... ≥ dₖ 是奇异值。
+其中 D 是对角矩阵，对角线元素
+d₁ ≥ d₂ ≥ ... ≥ dₖ 是奇异值。
 k = min(r, c) - 1
 
-第m个奇异值的平方 dₘ² 就是第m维的"惯性" (inertia)，
+第m个奇异值的平方 dₘ² 就是第m维的
+"惯性" (inertia)，
 类似于PCA中的"方差解释量"。
 总惯性 = Σᵢⱼ χ² / n.. = 总χ²统计量 / 样本量</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="标准化残差矩阵与奇异值分解，可横向滚动">
+                <math display="block" aria-label="标准化残差 Z 下标 i j 等于观测概率减去行列边际乘积，再除以两者乘积的平方根；Z 的奇异值分解等于 U D V 转置">
+                    <mrow>
+                        <msub><mi>Z</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>p</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>r</mi><mi>i</mi></msub><msub><mi>c</mi><mi>j</mi></msub></mrow>
+                            <msqrt><mrow><msub><mi>r</mi><mi>i</mi></msub><msub><mi>c</mi><mi>j</mi></msub></mrow></msqrt>
+                        </mfrac>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>Z</mi><mo>=</mo><mi>U</mi><mi>D</mi><msup><mi>V</mi><mo>⊤</mo></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (21.2)　标准化残差与 SVD：奇异值平方 <span class="math-inline">d<sub>m</sub>²</span> 即第 m 维的<strong>惯性</strong>，对应 PCA 中的“方差解释量”。</p>
+        </div>
 
         <p>SVD之后，我们就可以计算行坐标和列坐标，在低维空间中展示列联表的结构。保留了前两维（或三维）后，就能画出一张直观的对应图。</p>
 
@@ -128,7 +171,8 @@ k = min(r, c) - 1
 
         <p><strong>行主坐标</strong> (用于对应图中的点)：</p>
         <pre><code>F = D_r⁻¹/² U D
-其中 D_r = diag(r)，D_r⁻¹/² 是对角矩阵，元素为 1/√(rᵢ)
+其中 D_r = diag(r)，D_r⁻¹/² 是对角矩阵，
+元素为 1/√(rᵢ)
 F的第m列是行点在m维空间中的坐标</code></pre>
 
         <p><strong>列主坐标</strong>：</p>
@@ -172,7 +216,8 @@ F的第m列是行点在m维空间中的坐标</code></pre>
 如果该样本属于该类别，则单元格填 1，否则填 0。
 
 伯顿矩阵 B = Zᵀ Z：
-B 是方阵，对角线是每个类别的频数，非对角线是两两类别的共现频数。
+B 是方阵，对角线是每个类别的频数，
+非对角线是两两类别的共现频数。
 对伯顿矩阵做对应分析，就得到了MCA。</code></pre>
 
         <p>MCA生成的对应图可以展示多个分类变量的所有类别之间的关联关系。这在市场细分、用户画像、社会调查等领域非常流行——比如在一张图上同时展示"年龄段"、"收入水平"、"产品偏好"和"购买渠道"的类别关系，帮助分析师快速发现潜在的市场细分模式。</p>
@@ -199,6 +244,36 @@ B 是方阵，对角线是每个类别的频数，非对角线是两两类别的
 
         <p>这种可视化极大地帮助了市场团队理解品牌定位以及品牌之间的竞争格局，而无需翻阅复杂的统计报表。</p>
 
+        <figure id="fig-ca">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f21-title f21-desc">
+                <title id="f21-title">品牌认知调查的对应图（对称图）</title>
+                <desc id="f21-desc">品牌点（紫色圆）与属性点（蓝色方块）在同一平面上：品牌A靠近创新与年轻，品牌B靠近可靠与传统，品牌C靠近廉价，品牌D靠近高端，品牌E位于中心。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <line x1="140" y1="180" x2="580" y2="180" stroke="#e2e8f0"/>
+                <line x1="360" y1="40" x2="360" y2="320" stroke="#e2e8f0"/>
+                <g id="g-brands" fill="#7c3aed">
+                    <circle cx="248" cy="118" r="7"/><circle cx="486" cy="266" r="7"/><circle cx="302" cy="284" r="7"/><circle cx="492" cy="96" r="7"/><circle cx="360" cy="180" r="7"/>
+                </g>
+                <g font-size="12" fill="#5b21b6" font-weight="600">
+                    <text x="234" y="110">A</text><text x="496" y="270">B</text><text x="288" y="298">C</text><text x="502" y="92">D</text><text x="368" y="176">E</text>
+                </g>
+                <g id="g-attrs" fill="#0ea5e9">
+                    <rect x="245" y="71" width="14" height="14"/><rect x="469" y="239" width="14" height="14"/><rect x="279" y="289" width="14" height="14"/><rect x="493" y="59" width="14" height="14"/><rect x="209" y="143" width="14" height="14"/><rect x="513" y="289" width="14" height="14"/>
+                </g>
+                <g font-size="12" fill="#0369a1">
+                    <text x="228" y="66">创新</text><text x="452" y="234">可靠</text><text x="262" y="284">廉价</text><text x="512" y="56">高端</text><text x="192" y="140">年轻</text><text x="532" y="292">传统</text>
+                </g>
+                <text x="40" y="26" font-size="13" fill="#334155">紫色圆=品牌　蓝色方块=印象属性　前两维惯性 86.7%</text>
+                <text x="40" y="322" font-size="11" fill="#64748b">（坐标与惯性为教学示意，非实测数据）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-brand" aria-pressed="false">高亮品牌点</button>
+                <button type="button" id="btn-attr" aria-pressed="false">高亮属性点</button>
+                <output id="ca-out" aria-live="polite">品牌与属性并列显示</output>
+            </div>
+            <figcaption>图 21-1　品牌认知调查的对称对应图：彼此靠近的品牌与属性提示两者倾向共现（如同行/同列距离可解释，行-列距离需谨慎，并先核对各点的 cos²）。</figcaption>
+        </figure>
+
         <h2>踩坑故事：过度解读对应图中的距离</h2>
 
         <p>有一个著名的对应分析误用案例。某市场研究公司在为一家饮料公司做品牌定位时，跑了一张对应图，发现品牌X的点和"年轻人"这个属性点在对角线方向上离得很远，据此得出结论："品牌X不受年轻人欢迎。"但后来更仔细的分析发现，品牌X在这个维度上的cos²只有0.08——也就是说，品牌X在这个二维投影中的位置几乎完全是随机噪声造成的，与实际偏好无关。</p>
@@ -218,8 +293,37 @@ B 是方阵，对角线是每个类别的频数，非对角线是两两类别的
             <a href="index.html">📖 返回目录</a>
             <a href="22.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-ca');
+    if (!fig) return;
+    var brands = fig.querySelector('#g-brands');
+    var attrs = fig.querySelector('#g-attrs');
+    var bB = document.getElementById('btn-brand');
+    var bA = document.getElementById('btn-attr');
+    var out = document.getElementById('ca-out');
+    function render() {
+        var hiB = bB.getAttribute('aria-pressed') === 'true';
+        var hiA = bA.getAttribute('aria-pressed') === 'true';
+        brands.style.opacity = hiA ? '0.15' : '1';
+        attrs.style.opacity = hiB ? '0.15' : '1';
+        if (hiB) out.textContent = '高亮品牌点：A 创新年轻 / B 可靠传统 / C 廉价 / D 高端';
+        else if (hiA) out.textContent = '高亮属性点：六个印象维度';
+        else out.textContent = '品牌与属性并列显示';
+    }
+    bB.addEventListener('click', function () {
+        bB.setAttribute('aria-pressed', bB.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    bA.addEventListener('click', function () {
+        bA.setAttribute('aria-pressed', bA.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
