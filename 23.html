@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第23章 R语言实现多元分析</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        /* 移动端：代码块过长时自动换行，避免整页横向溢出 */
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+        @media (max-width: 768px) {
+            table { display: block; overflow-x: auto; max-width: 100%; }
+        }
+    </style>
 </head>
 <body>
 <a class="skip-link" href="#content">跳转至正文</a>
@@ -146,9 +153,9 @@ pca_result &lt;- prcomp(X, scale. = TRUE)
 summary(pca_result)
 # Importance of components:
 #            PC1    PC2     PC3     PC4
-# Std. dev  1.7084 0.9560 0.38309 0.14393
-# Prop.Var  0.7296 0.2285 0.03669 0.00518
-# Cum.Prop  0.7296 0.9581 0.99482 1.00000
+# Standard deviation     1.7084 0.9560 0.38309 0.14393
+# Proportion of Variance 0.7296 0.2285 0.03669 0.00518
+# Cumulative Proportion  0.7296 0.9581 0.99482 1.00000
 
 # 查看载荷（变量在主成分上的权重）
 pca_result$rotation
