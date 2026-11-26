@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第18章　判别分析：Fisher判别与逐步判别</h1>
+            <p class="article-meta">类间/类内散布与瑞利商 · 多类别判别与典型判别函数 · 逐步判别与 Wilks Λ · 前提假设与交叉验证</p>
+        </header>
 
         <h2>开篇：当判别分析遇上降维</h2>
 
@@ -81,11 +87,59 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 # a = S_W⁻¹ (μ₁ - μ₂)
 # 这和我们上一章 LDA 的判别函数方向完全一致！</code></pre>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Fisher 判别准则与广义特征值方程，可横向滚动">
+                <math display="block" aria-label="Fisher 准则为投影向量的类间散布除以类内散布；最优方向是类内散布矩阵逆乘以两类均值差；等价于广义特征值问题 S_B a 等于 λ S_W a">
+                    <mrow>
+                        <mi>J</mi><mo stretchy="false">(</mo><mi>a</mi><mo stretchy="false">)</mo><mo>=</mo>
+                        <mfrac>
+                            <mrow><msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>S</mi><mi>B</mi></msub><mi>a</mi></mrow>
+                            <mrow><msup><mi>a</mi><mo>⊤</mo></msup><msub><mi>S</mi><mi>W</mi></msub><mi>a</mi></mrow>
+                        </mfrac>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>a</mi><mo>=</mo><msubsup><mi>S</mi><mi>W</mi><mrow><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub><mo stretchy="false">)</mo>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (18.1)　Fisher 判别的瑞利商与解：<span class="math-inline">S_W⁻¹</span> 对类内散布做“白化”，最优方向即二分类下的 <span class="math-inline">S_W⁻¹(μ₁−μ₂)</span>，与 LDA 判别方向一致（广义特征问题 <span class="math-inline">S_B a = λ S_W a</span>）。</p>
+        </div>
+
         <p>所以 Fisher 判别的几何本质是——<strong>在原始 p 维空间中找一个一维投影，使得"类间方差 / 类内方差"最大</strong>。这个投影方向不一定与连接两个类中心的向量方向相同——因为它还要考虑类内散布的"形状"（由 S_W 编码）。</p>
 
         <div class="tip">
             <strong>直觉理解：</strong>想象两个椭球形的类，它们的中心连线方向是东北-西南。但东北-西南方向恰好也是椭圆的长轴方向——沿着这个方向投影，两个类内部的样本散布很大，反而可能重叠。Fisher 判别找到的方向，会"避开"高变异方向，选择那些能"拉开"不同类、同时"压缩"同类散布的方向。这就是为什么 S_W⁻¹ 起到了"白化"的作用——它把散布大的方向"压扁"了。
         </div>
+
+        <figure id="fig-fisher">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f18-title f18-desc">
+                <title id="f18-title">类中心连线投影与 Fisher 方向投影的对比</title>
+                <desc id="f18-desc">上方数轴表示沿两类中心连线方向投影，两类样本互相重叠；下方数轴表示沿 Fisher 判别方向投影，两类样本明显分开。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <text x="40" y="26" font-size="13" fill="#334155">同一批样本在两种方向上的投影结果</text>
+                <circle cx="470" cy="22" r="6" fill="#0ea5e9"/><text x="482" y="27" font-size="12" fill="#334155">类1</text>
+                <rect x="524" y="16" width="11" height="11" fill="#7c3aed"/><text x="542" y="27" font-size="12" fill="#334155">类2</text>
+                <g id="proj-center">
+                    <text x="100" y="80" font-size="13" fill="#5b21b6">沿类中心连线投影</text>
+                    <line x1="100" y1="120" x2="620" y2="120" stroke="#cbd5e1"/>
+                    <g fill="#0ea5e9"><circle cx="250" cy="120" r="6"/><circle cx="280" cy="120" r="6"/><circle cx="300" cy="120" r="6"/><circle cx="320" cy="120" r="6"/><circle cx="350" cy="120" r="6"/></g>
+                    <g fill="#7c3aed"><rect x="336" y="114" width="12" height="12"/><rect x="366" y="114" width="12" height="12"/><rect x="386" y="114" width="12" height="12"/><rect x="406" y="114" width="12" height="12"/><rect x="434" y="114" width="12" height="12"/></g>
+                    <text x="100" y="150" font-size="12" fill="#ef4444">两类在 330-350 区间重叠，难以区分</text>
+                </g>
+                <g id="proj-fisher">
+                    <text x="100" y="210" font-size="13" fill="#5b21b6">沿 Fisher 方向投影</text>
+                    <line x1="100" y1="250" x2="620" y2="250" stroke="#cbd5e1"/>
+                    <g fill="#0ea5e9"><circle cx="210" cy="250" r="6"/><circle cx="235" cy="250" r="6"/><circle cx="260" cy="250" r="6"/><circle cx="285" cy="250" r="6"/><circle cx="310" cy="250" r="6"/></g>
+                    <g fill="#7c3aed"><rect x="424" y="244" width="12" height="12"/><rect x="454" y="244" width="12" height="12"/><rect x="479" y="244" width="12" height="12"/><rect x="504" y="244" width="12" height="12"/><rect x="529" y="244" width="12" height="12"/></g>
+                    <text x="100" y="280" font-size="12" fill="#16a34a">两类之间留下明显空隙，易于判别</text>
+                </g>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-pc" aria-pressed="false">强调类中心连线</button>
+                <button type="button" id="btn-pf" aria-pressed="false">强调 Fisher 方向</button>
+                <output id="fisher-out" aria-live="polite">两种投影并列显示</output>
+            </div>
+            <figcaption>图 18-1　投影方向的差别：类中心连线未考虑类内散布，可能让两类重叠；Fisher 方向用 <span class="math-inline">S_W⁻¹</span> 压缩高变异方向，使投影后两类分离（点位为教学示意）。</figcaption>
+        </figure>
 
         <h2>多类别Fisher判别</h2>
 
@@ -95,7 +149,8 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 
         <pre><code># 多类别 Fisher 判别
 
-# S_B 的秩最多为 K-1（因为 Σ nₖ(μₖ - μ) = 0，各均值向量线性相关）
+# S_B 的秩最多为 K-1，因为
+# Σ nₖ(μₖ - μ) = 0，各均值向量线性相关
 # 所以 S_W⁻¹ S_B 最多只有 K-1 个非零特征值
 
 # 对于 iris 数据 (K=3, p=4)：
@@ -137,13 +192,17 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 # 这意味着：
 # - 几乎所有的类间差异都被第一个判别函数捕获了
 # - 第二个判别函数贡献很小，可以忽略
-# - 所以我们只需要一个判别函数（一维投影）就能很好地区分三种鸢尾花
+# - 一个判别函数（一维投影）
+#   就能很好地区分三种鸢尾花
 
 # 判别函数系数（原始变量的权重）：
-# LD1 = 0.83 × Sepal.Length + 1.53 × Sepal.Width
-#      - 2.20 × Petal.Length - 2.81 × Petal.Width
+# LD1 = 0.83 × Sepal.Length
+#      + 1.53 × Sepal.Width
+#      - 2.20 × Petal.Length
+#      - 2.81 × Petal.Width
 # 可以看到，花瓣相关的变量权重最大（绝对值）
-# 这和我们的直觉一致：花瓣长度和宽度是区分物种的最关键特征</code></pre>
+# 与直觉一致：花瓣长度和宽度
+# 是区分物种的最关键特征</code></pre>
 
         <p>典型判别函数的得分可以用于可视化：将样本的原始特征代入判别函数，得到每个样本在判别空间中的坐标，然后绘制散点图。一张漂亮的判别空间图，往往能直观地展示出不同类别之间的分离程度。</p>
 
@@ -164,6 +223,23 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 # 在逐步判别中，我们计算"变量加入/剔除后 Λ 的变化"
 # 用 F 统计量检验这个变化是否显著</code></pre>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Wilks Lambda 统计量公式，可横向滚动">
+                <math display="block" aria-label="Wilks Lambda 等于类内散布矩阵行列式除以总散布矩阵行列式，取值在 0 到 1 之间">
+                    <mrow>
+                        <mi>Λ</mi><mo>=</mo>
+                        <mfrac>
+                            <mrow><mo>|</mo><msub><mi>S</mi><mi>W</mi></msub><mo>|</mo></mrow>
+                            <mrow><mo>|</mo><msub><mi>S</mi><mi>T</mi></msub><mo>|</mo></mrow>
+                        </mfrac>
+                        <mo>,</mo><mspace width="1em"/>
+                        <msub><mi>S</mi><mi>T</mi></msub><mo>=</mo><msub><mi>S</mi><mi>B</mi></msub><mo>+</mo><msub><mi>S</mi><mi>W</mi></msub>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (18.2)　Wilks Λ：越小表示类内散布相对总散布越小、判别力越强；逐步判别用加入/剔除变量后 Λ 的变化构造成 F 统计量来取舍变量。</p>
+        </div>
+
         <p>逐步判别的具体步骤：</p>
 
         <pre><code>算法：逐步判别分析
@@ -173,15 +249,19 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
    a. 遍历所有不在模型中的变量
    b. 计算每个变量加入后 Wilks' Λ 的下降量
    c. 选择使 Λ 下降最多的变量
-   d. 如果对应的 F-to-enter > F_enter_threshold，加入该变量
+   d. 若 F-to-enter > F_enter_threshold，
+      则加入该变量
 3. 向后剔除：
    a. 遍历所有已在模型中的变量
    b. 计算剔除每个变量后 Wilks' Λ 的上升量
-   c. 如果最小的 F-to-remove &lt; F_remove_threshold，剔除该变量
+   c. 若最小的 F-to-remove &lt;
+      F_remove_threshold，则剔除该变量
 4. 重复步骤 2-3，直到没有变量可以加入或剔除
 
 # F-to-enter / F-to-remove 是用户指定的阈值
-# 常用阈值：F_enter = 3.84, F_remove = 2.71 (对应 α = 0.05 的近似值)</code></pre>
+# 常用阈值：F_enter = 3.84,
+#           F_remove = 2.71
+# （对应 α = 0.05 的近似值）</code></pre>
 
         <p>向前选择 (forward selection) 和向后剔除 (backward elimination) 可以组合使用，形成"双向逐步" (stepwise) 策略——每一步先尝试加入一个新变量，然后检查是否有已加入的变量"变得不重要"需要剔除。双向逐步通常比单纯的向前选择更稳定。</p>
 
@@ -219,21 +299,28 @@ max_a  J(a) = (aᵀ S_B a) / (aᵀ S_W a)
 
         <p><strong>自助法 (Bootstrap)</strong>：从原始数据中有放回地抽取 B 个自助样本（每个样本量与原始数据相同），在自助样本上训练模型，然后在原始数据上评估。自助法的特殊变种——<strong>.632 自助法</strong>——专门用于处理有放回抽样带来的"训练集和测试集的样本重叠"问题，评估结果比较准确。</p>
 
-        <pre><code>from sklearn.model_selection import cross_val_score, LeaveOneOut
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+        <pre><code>from sklearn.model_selection import \
+    cross_val_score, LeaveOneOut
+from sklearn.discriminant_analysis \
+    import LinearDiscriminantAnalysis
 import numpy as np
 
 # 假设 X, y 已经准备好
 lda = LinearDiscriminantAnalysis()
 
 # 10折交叉验证
-scores_10fold = cross_val_score(lda, X, y, cv=10)
-print(f"10折CV准确率: {scores_10fold.mean():.3f} ± {scores_10fold.std():.3f}")
+scores_10fold = cross_val_score(
+    lda, X, y, cv=10)
+print(f"10折CV准确率: "
+      f"{scores_10fold.mean():.3f}"
+      f" ± {scores_10fold.std():.3f}")
 
 # 留一交叉验证
 loo = LeaveOneOut()
-scores_loo = cross_val_score(lda, X, y, cv=loo)
-print(f"LOOCV准确率: {scores_loo.mean():.3f}")
+scores_loo = cross_val_score(
+    lda, X, y, cv=loo)
+print(f"LOOCV准确率: "
+      f"{scores_loo.mean():.3f}")
 
 # 注意：LOOCV 的结果是每个样本预测对（1）或错（0）
 # 所以准确率就是正确预测的比例</code></pre>
@@ -261,8 +348,37 @@ print(f"LOOCV准确率: {scores_loo.mean():.3f}")
             <a href="index.html">📖 返回目录</a>
             <a href="19.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-fisher');
+    if (!fig) return;
+    var pc = fig.querySelector('#proj-center');
+    var pf = fig.querySelector('#proj-fisher');
+    var bC = document.getElementById('btn-pc');
+    var bF = document.getElementById('btn-pf');
+    var out = document.getElementById('fisher-out');
+    function render() {
+        var hiC = bC.getAttribute('aria-pressed') === 'true';
+        var hiF = bF.getAttribute('aria-pressed') === 'true';
+        pc.style.opacity = hiF ? '0.18' : '1';
+        pf.style.opacity = hiC ? '0.18' : '1';
+        if (hiC) out.textContent = '强调类中心连线：两类重叠';
+        else if (hiF) out.textContent = '强调 Fisher 方向：两类分开';
+        else out.textContent = '两种投影并列显示';
+    }
+    bC.addEventListener('click', function () {
+        bC.setAttribute('aria-pressed', bC.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    bF.addEventListener('click', function () {
+        bF.setAttribute('aria-pressed', bF.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
