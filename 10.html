@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第10章　PCA的进阶应用</h1>
+            <p class="article-meta">p≫n 高维困境 · 核 PCA 处理非线性 · 稀疏 PCA 提升可解释性 · 增量 PCA 处理流式数据 · 特征脸图像压缩</p>
+        </header>
 
         <h2>开篇：当PCA不够用的时候</h2>
 
@@ -96,15 +102,75 @@ X_kpca = kpca.fit_transform(X)  # 两个圆被完美分离</code></pre>
             <li><strong>Sigmoid 核：</strong>k(xᵢ, xⱼ) = tanh(α xᵢ · xⱼ + c)。</li>
         </ul>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="核技巧与 RBF 核公式，可横向滚动">
+                <math display="block" aria-label="核技巧：核函数等于映射后向量的内积；RBF 核等于负 gamma 乘两向量欧氏距离平方的指数">
+                    <mrow>
+                        <mi>k</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>=</mo>
+                        <mo stretchy="false">⟨</mo><mi>φ</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>,</mo><mi>φ</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">⟩</mo>
+                        <mo>,</mo><mspace width="1.5em"/>
+                        <msub><mi>k</mi><mrow><mtext>RBF</mtext></mrow></msub><mo>=</mo>
+                        <msup><mi>e</mi><mrow><mo>−</mo><mi>γ</mi><msup><mrow><mo>‖</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><msub><mi>x</mi><mi>j</mi></msub><mo>‖</mo></mrow><mn>2</mn></msup></mrow></msup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (10.1)　核技巧：只需计算核函数 <span class="math-inline">k</span>，无需显式构造高维映射 <span class="math-inline">φ</span>。RBF 核中 <span class="math-inline">γ</span> 控制核宽——过大易过拟合，过小则样本间过于相似。</p>
+        </div>
+
         <div class="tip">
             <strong>核 PCA 的一个陷阱：</strong>和标准 PCA 不同，核 PCA 的"主成分"是在隐式的高维特征空间中定义的，你无法直接得到原始变量上的载荷向量，因此可解释性差很多。如果你需要告诉业务方"第1主成分代表什么"，核 PCA 会让你非常为难。在可解释性要求高的项目中，谨慎使用核 PCA。
         </div>
+
+        <figure id="fig-kpca">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f10-title f10-desc">
+                <title id="f10-title">线性 PCA 与核 PCA 对同心圆数据的降维对比</title>
+                <desc id="f10-desc">左图是同心圆原始数据；右上横轴为线性 PCA 第一主成分，内圈与外圈投影后互相重叠；右下横轴为核 PCA（RBF 核）投影，内圈与外圈被分成两个分离的簇。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <g class="pt-inner" fill="#0ea5e9">
+                    <circle cx="195" cy="170" r="5"/><circle cx="182" cy="138" r="5"/><circle cx="150" cy="125" r="5"/><circle cx="118" cy="138" r="5"/><circle cx="105" cy="170" r="5"/><circle cx="118" cy="202" r="5"/><circle cx="150" cy="215" r="5"/><circle cx="182" cy="202" r="5"/>
+                </g>
+                <g class="pt-outer" fill="#7c3aed">
+                    <rect x="246" y="166" width="9" height="9"/><rect x="216" y="95" width="9" height="9"/><rect x="146" y="66" width="9" height="9"/><rect x="75" y="95" width="9" height="9"/><rect x="46" y="166" width="9" height="9"/><rect x="75" y="236" width="9" height="9"/><rect x="146" y="266" width="9" height="9"/><rect x="216" y="236" width="9" height="9"/>
+                </g>
+                <text x="150" y="300" font-size="12" fill="#334155" text-anchor="middle">原始数据：同心圆</text>
+                <line x1="480" y1="120" x2="700" y2="120" stroke="#cbd5e1"/>
+                <g class="pt-inner" fill="#0ea5e9"><circle cx="520" cy="120" r="5"/><circle cx="540" cy="120" r="5"/><circle cx="560" cy="120" r="5"/><circle cx="580" cy="120" r="5"/><circle cx="600" cy="120" r="5"/><circle cx="620" cy="120" r="5"/><circle cx="640" cy="120" r="5"/><circle cx="660" cy="120" r="5"/></g>
+                <g class="pt-outer" fill="#7c3aed"><rect x="512" y="116" width="9" height="9"/><rect x="532" y="116" width="9" height="9"/><rect x="562" y="116" width="9" height="9"/><rect x="582" y="116" width="9" height="9"/><rect x="592" y="116" width="9" height="9"/><rect x="612" y="116" width="9" height="9"/><rect x="632" y="116" width="9" height="9"/><rect x="652" y="116" width="9" height="9"/></g>
+                <text x="590" y="96" font-size="12" fill="#334155" text-anchor="middle">线性 PCA 第一主成分：内外圈重叠</text>
+                <line x1="480" y1="240" x2="700" y2="240" stroke="#cbd5e1"/>
+                <g class="pt-inner" fill="#0ea5e9"><circle cx="505" cy="240" r="5"/><circle cx="515" cy="240" r="5"/><circle cx="525" cy="240" r="5"/><circle cx="535" cy="240" r="5"/><circle cx="510" cy="240" r="5"/><circle cx="520" cy="240" r="5"/><circle cx="530" cy="240" r="5"/><circle cx="540" cy="240" r="5"/></g>
+                <g class="pt-outer" fill="#7c3aed"><rect x="621" y="236" width="9" height="9"/><rect x="636" y="236" width="9" height="9"/><rect x="651" y="236" width="9" height="9"/><rect x="666" y="236" width="9" height="9"/><rect x="626" y="236" width="9" height="9"/><rect x="641" y="236" width="9" height="9"/><rect x="656" y="236" width="9" height="9"/><rect x="671" y="236" width="9" height="9"/></g>
+                <text x="590" y="216" font-size="12" fill="#334155" text-anchor="middle">核 PCA (RBF)：内外圈分成两簇</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-in" aria-pressed="false">高亮内圈</button>
+                <button type="button" id="btn-out" aria-pressed="false">高亮外圈</button>
+                <output id="kpca-out" aria-live="polite">全部点：内圈（圆）与外圈（方块）</output>
+            </div>
+            <figcaption>图 10-1　同心圆数据上线性 PCA 与核 PCA 的差别：蓝色圆点为内圈、紫色方块为外圈。线性 PCA 把两个圈压缩到同一条轴上而重叠，核 PCA 则将其分成两个可分的簇（点位为教学示意）。</figcaption>
+        </figure>
 
         <h2>稀疏PCA</h2>
 
         <p>标准 PCA 的载荷向量通常是稠密的——几乎所有原始变量都对每个主成分有非零贡献。这在变量数 p 很大时非常麻烦：你没法说"第1主成分主要由变量 X₁, X₃, X₇ 构成"，因为它几乎涉及所有变量。载荷矩阵变成了一团密密麻麻的数字，毫无可读性可言。</p>
 
         <p><strong>稀疏 PCA (Sparse PCA, SPCA)</strong> 通过在 PCA 的目标函数中加入 <strong>L1 正则化项</strong>（类似于 LASSO），迫使部分载荷收缩到零，从而实现"稀疏"的载荷向量——每个主成分只由少数几个原始变量构成，可解释性大幅提升。</p>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="稀疏 PCA 目标函数，可横向滚动">
+                <math display="block" aria-label="稀疏 PCA 在单位范数约束下最大化投影方差减去 L1 惩罚项">
+                    <mrow>
+                        <munder><mtext>max</mtext><mi>v</mi></munder>
+                        <mspace width="0.4em"/>
+                        <msup><mrow><mo>‖</mo><mi>X</mi><mi>v</mi><mo>‖</mo></mrow><mn>2</mn></msup><mo>−</mo><mi>α</mi><msub><mrow><mo>‖</mo><mi>v</mi><mo>‖</mo></mrow><mn>1</mn></msub>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mtext>s.t.</mtext><mspace width="0.4em"/>
+                        <msub><mrow><mo>‖</mo><mi>v</mi><mo>‖</mo></mrow><mn>2</mn></msub><mo>=</mo><mn>1</mn>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (10.2)　稀疏 PCA 的目标（已作简化）：在单位范数约束下最大化投影方差，同时用 L1 惩罚 <span class="math-inline">α‖v‖₁</span> 把不重要的载荷压到零；<span class="math-inline">α</span> 越大载荷越稀疏。</p>
+        </div>
 
         <pre><code># Python：稀疏 PCA
 from sklearn.decomposition import SparsePCA
@@ -215,8 +281,38 @@ print(f"压缩比：2914 / 150 = {compression_ratio:.1f}:1")
             <a href="index.html">📖 返回目录</a>
             <a href="11.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-kpca');
+    if (!fig) return;
+    var inner = fig.querySelectorAll('.pt-inner');
+    var outer = fig.querySelectorAll('.pt-outer');
+    var bIn = document.getElementById('btn-in');
+    var bOut = document.getElementById('btn-out');
+    var out = document.getElementById('kpca-out');
+    function setOpacity(nodes, value) {
+        for (var i = 0; i < nodes.length; i++) { nodes[i].style.opacity = value; }
+    }
+    function render() {
+        var hiIn = bIn.getAttribute('aria-pressed') === 'true';
+        var hiOut = bOut.getAttribute('aria-pressed') === 'true';
+        if (hiIn) { setOpacity(inner, 1); setOpacity(outer, 0.18); out.textContent = '已高亮内圈（蓝色圆点）'; }
+        else if (hiOut) { setOpacity(outer, 1); setOpacity(inner, 0.18); out.textContent = '已高亮外圈（紫色方块）'; }
+        else { setOpacity(inner, 1); setOpacity(outer, 1); out.textContent = '全部点：内圈（圆）与外圈（方块）'; }
+    }
+    function toggle(btn, other) {
+        var next = btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true';
+        btn.setAttribute('aria-pressed', next);
+        if (next === 'true') { other.setAttribute('aria-pressed', 'false'); }
+        render();
+    }
+    bIn.addEventListener('click', function () { toggle(bIn, bOut); });
+    bOut.addEventListener('click', function () { toggle(bOut, bIn); });
+    render();
+})();
+</script>
 </body>
 </html>
