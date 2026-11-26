@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第14章　PCA与因子分析的比较</h1>
+            <p class="article-meta">数据简化 vs 潜变量建模 · 重构误差与协方差拟合 · 载荷模式差异 · 决策流程与 5 问自测 · 踩坑故事</p>
+        </header>
 
         <h2>开篇：PCA vs FA——一个世纪的对话</h2>
 
@@ -99,9 +105,36 @@ min_{L, Ψ} ||R - (LLᵀ + Ψ)||²_F
 直觉：让模型生成的协方差矩阵
 最接近观测到的协方差矩阵。
 FA 不关心如何用少数变量"重构"数据，
-它关心的是如何用潜变量结构"解释"变量之间的关系。</code></pre>
+它关心的是如何用潜变量结构
+"解释"变量之间的关系。</code></pre>
 
         <p>从这个数学表述可以清楚地看到：PCA 关注的是<strong>数据点</strong>的重建——它在行空间（样本空间）中操作；FA 关注的是<strong>变量间关系</strong>的再现——它在列空间（变量空间）中操作。这就是 PCA 的"降维"和 FA 的"结构发现"之间的数学根源。</p>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="PCA 重构误差最小化目标，可横向滚动">
+                <math display="block" aria-label="PCA 在正交约束下最小化 X 减去 XWW 转置的 Frobenius 范数平方">
+                    <mrow>
+                        <munder><mtext>min</mtext><mrow><msup><mi>W</mi><mo>⊤</mo></msup><mi>W</mi><mo>=</mo><mi>I</mi></mrow></munder>
+                        <mspace width="0.4em"/>
+                        <msubsup><mrow><mo>‖</mo><mi>X</mi><mo>−</mo><mi>X</mi><mi>W</mi><msup><mi>W</mi><mo>⊤</mo></msup><mo>‖</mo></mrow><mi>F</mi><mn>2</mn></msubsup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (14.1)　PCA 目标：在正交约束 <span class="math-inline">WᵀW = I</span> 下最小化重构误差，等价于最大化投影方差，关注<strong>样本点</strong>的重建。</p>
+        </div>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="因子分析协方差拟合目标，可横向滚动">
+                <math display="block" aria-label="因子分析最小化观测相关矩阵 R 与 LL 转置加特殊方差 Ψ 的 Frobenius 范数平方">
+                    <mrow>
+                        <munder><mtext>min</mtext><mrow><mi>L</mi><mo>,</mo><mi>Ψ</mi></mrow></munder>
+                        <mspace width="0.4em"/>
+                        <msubsup><mrow><mo>‖</mo><mi>R</mi><mo>−</mo><mo>(</mo><mi>L</mi><msup><mi>L</mi><mo>⊤</mo></msup><mo>+</mo><mi>Ψ</mi><mo>)</mo><mo>‖</mo></mrow><mi>F</mi><mn>2</mn></msubsup>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (14.2)　FA 目标：让模型生成的协方差 <span class="math-inline">LLᵀ + Ψ</span> 贴近观测相关矩阵 <span class="math-inline">R</span>，关注<strong>变量间关系</strong>的再现。</p>
+        </div>
 
         <h2>结果对比</h2>
 
@@ -124,10 +157,13 @@ petal length     0.982    0.013
 petal width      0.963    0.003
 
 观察差异：
-- PCA 的载荷比较"分散"——每个变量在两个主成分上都有非零载荷
-- FA 的载荷呈现"简单结构"——花萼宽度几乎只属于因子2，
+- PCA 载荷比较"分散"，
+  每个变量在两个主成分上都有非零载荷
+- FA 载荷呈现"简单结构"，
+  花萼宽度几乎只属于因子2，
   其他三个变量属于因子1
-- FA 的结果更容易命名：因子1 = "花瓣相关"，
+- FA 结果更容易命名：
+  因子1 = "花瓣相关"，
   因子2 = "花萼宽度"</code></pre>
 
         <p>这个对比揭示了 PCA 和 FA 在输出形式上的典型差异。PCA 的载荷通常不那么"干净"——第一主成分往往被几乎所有变量"瓜分"，因为它在追求最大化方差时会把所有变量的信息都吸收进来。而 FA 由于有旋转的加持，加上它只关心共同方差，输出通常更清晰、更容易解释。</p>
@@ -137,6 +173,42 @@ petal width      0.963    0.003
         <div class="highlight">
             <strong>一个重要的提醒：</strong>有时候人们觉得 FA"更好"只是因为它的结果"更好看"——载荷矩阵呈现出漂亮的简单结构。但如果你只是想做降维后用于预测模型，PCA 可能是更诚实的选择——它不会因为你旋转了而变得更"对"。
         </div>
+
+        <figure id="fig-pcafa">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f14-title f14-desc">
+                <title id="f14-title">iris 数据上 PCA 与 FA 的载荷模式对比</title>
+                <desc id="f14-desc">左图 PCA 载荷较为分散，每个变量在两个主成分上都有非零载荷；右图 FA 旋转后载荷呈现简单结构，花萼宽度几乎只属于因子2，其余三个变量属于因子1。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <text x="40" y="30" font-size="13" fill="#334155">紫色为正载荷、蓝色为负载荷，颜色越深关联越强</text>
+                <g id="g-pca">
+                    <text x="80" y="66" font-size="13" fill="#5b21b6">PCA 载荷（分散）</text>
+                    <g font-size="11" fill="#64748b" text-anchor="middle"><text x="103" y="84">成分1</text><text x="149" y="84">成分2</text></g>
+                    <rect x="80" y="90" width="46" height="22" fill="#7c3aed" fill-opacity="0.52"/><rect x="126" y="90" width="46" height="22" fill="#0ea5e9" fill-opacity="0.38"/>
+                    <rect x="80" y="116" width="46" height="22" fill="#0ea5e9" fill-opacity="0.26"/><rect x="126" y="116" width="46" height="22" fill="#0ea5e9" fill-opacity="0.92"/>
+                    <rect x="80" y="142" width="46" height="22" fill="#7c3aed" fill-opacity="0.58"/><rect x="126" y="142" width="46" height="22" fill="#0ea5e9" fill-opacity="0.05"/>
+                    <rect x="80" y="168" width="46" height="22" fill="#7c3aed" fill-opacity="0.57"/><rect x="126" y="168" width="46" height="22" fill="#0ea5e9" fill-opacity="0.07"/>
+                    <g font-size="11" fill="#334155" text-anchor="end"><text x="74" y="105">萼长</text><text x="74" y="131">萼宽</text><text x="74" y="157">瓣长</text><text x="74" y="183">瓣宽</text></g>
+                </g>
+                <g id="g-fa">
+                    <text x="400" y="66" font-size="13" fill="#5b21b6">FA 载荷（Varimax，简单结构）</text>
+                    <g font-size="11" fill="#64748b" text-anchor="middle"><text x="423" y="84">因子1</text><text x="469" y="84">因子2</text></g>
+                    <rect x="400" y="90" width="46" height="22" fill="#7c3aed" fill-opacity="0.89"/><rect x="446" y="90" width="46" height="22" fill="#0ea5e9" fill-opacity="0.04"/>
+                    <rect x="400" y="116" width="46" height="22" fill="#0ea5e9" fill-opacity="0.05"/><rect x="446" y="116" width="46" height="22" fill="#7c3aed" fill-opacity="0.99"/>
+                    <rect x="400" y="142" width="46" height="22" fill="#7c3aed" fill-opacity="0.98"/><rect x="446" y="142" width="46" height="22" fill="#7c3aed" fill-opacity="0.02"/>
+                    <rect x="400" y="168" width="46" height="22" fill="#7c3aed" fill-opacity="0.96"/><rect x="446" y="168" width="46" height="22" fill="#7c3aed" fill-opacity="0.02"/>
+                    <g font-size="11" fill="#334155" text-anchor="end"><text x="394" y="105">萼长</text><text x="394" y="131">萼宽</text><text x="394" y="157">瓣长</text><text x="394" y="183">瓣宽</text></g>
+                </g>
+                <text x="80" y="230" font-size="12" fill="#334155">PCA：载荷普遍分散在多个成分上</text>
+                <text x="400" y="230" font-size="12" fill="#334155">FA：旋转后每行只在一列上高载荷</text>
+                <text x="80" y="256" font-size="12" fill="#64748b">（载荷数值来自本章 iris 对比示例）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-pca" aria-pressed="false">只看 PCA 面板</button>
+                <button type="button" id="btn-fa" aria-pressed="false">只看 FA 面板</button>
+                <output id="pcafa-out" aria-live="polite">两块面板并列显示</output>
+            </div>
+            <figcaption>图 14-1　iris 数据上 PCA 载荷与 FA（Varimax）载荷的对比：PCA 的载荷较分散，FA 经旋转后呈现简单结构、更易命名——但“更清晰”部分来自旋转这一人为选择。</figcaption>
+        </figure>
 
         <h2>何时用PCA vs FA</h2>
 
@@ -153,7 +225,8 @@ Q2: 你有理论假设认为变量之间存在
     潜在因子驱动的相关结构吗？
     ↓
 有理论依据 → 转到 Q3
-没有，只是探索 → 用 PCA（或先 PCA 再考虑 FA）
+没有，只是探索 → 用 PCA
+（或先 PCA 再考虑 FA）
 
 Q3: 你后续需要做统计推断吗？
     （假设检验、置信区间）
@@ -165,7 +238,8 @@ Q4: 你的样本量足够大吗？
     （n ≥ 300，n/p ≥ 10）
     ↓
 是 → FA 稳定可靠
-否 → 用 PCA 更安全（FA 在小样本下可能不收敛）</code></pre>
+否 → 用 PCA 更安全
+（FA 在小样本下可能不收敛）</code></pre>
 
         <p>简单总结：</p>
         <table>
@@ -222,8 +296,37 @@ Q4: 你的样本量足够大吗？
             <a href="index.html">📖 返回目录</a>
             <a href="15.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-pcafa');
+    if (!fig) return;
+    var pca = fig.querySelector('#g-pca');
+    var fa = fig.querySelector('#g-fa');
+    var bPca = document.getElementById('btn-pca');
+    var bFa = document.getElementById('btn-fa');
+    var out = document.getElementById('pcafa-out');
+    function render() {
+        var hiP = bPca.getAttribute('aria-pressed') === 'true';
+        var hiF = bFa.getAttribute('aria-pressed') === 'true';
+        pca.style.opacity = hiF ? '0.15' : '1';
+        fa.style.opacity = hiP ? '0.15' : '1';
+        if (hiP) out.textContent = '只强调 PCA 面板：载荷较为分散';
+        else if (hiF) out.textContent = '只强调 FA 面板：简单结构更清晰';
+        else out.textContent = '两块面板并列显示';
+    }
+    bPca.addEventListener('click', function () {
+        bPca.setAttribute('aria-pressed', bPca.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    bFa.addEventListener('click', function () {
+        bFa.setAttribute('aria-pressed', bFa.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
