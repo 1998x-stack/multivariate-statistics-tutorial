@@ -68,7 +68,8 @@
 
 1. 计算相关矩阵 R（如果已标准化，R = 协方差矩阵）
 2. 对 R 做特征值分解：R = Q Λ Qᵀ
-3. 取前 m 个特征值 λ₁ ≥ λ₂ ≥ ... ≥ λₘ 和对应的特征向量 e₁, ..., eₘ
+3. 取前 m 个特征值 λ₁ ≥ λ₂ ≥ ... ≥ λₘ
+   和对应的特征向量 e₁, ..., eₘ
 4. 因子载荷矩阵的估计：
    L̂ = [√λ₁ e₁, √λ₂ e₂, ..., √λₘ eₘ]
    即第 j 列的值为 √λⱼ × eⱼ
@@ -224,7 +225,7 @@
             <p class="math-caption">式 (12.2)　Varimax 准则（原始形式，已作简化）：对每个因子 <span class="math-inline">j</span> 最大化 <span class="math-inline">l⁴</span> 与 <span class="math-inline">l²</span> 均值的差，使载荷“非高即零”，从而接近简单结构。</p>
         </div>
 
-        <pre><code># Python：Varimax 旋转（通过 factor_analyzer 包）
+        <pre><code># Python：Varimax 旋转（factor_analyzer）
 from factor_analyzer import Rotator
 
 # 假设 L 是初始载荷矩阵 (p × m)
@@ -269,7 +270,8 @@ L_rotated = rotator.fit_transform(L)
 # 旋转后的结果包括：
 # L_rotated: 旋转后的因子载荷矩阵
 # phi_matrix: 因子相关矩阵（斜交旋转特有）
-# structure_matrix: 因子结构矩阵（载荷 + 因子间相关）</code></pre>
+# structure_matrix: 因子结构矩阵
+# （载荷 + 因子间相关）</code></pre>
 
         <p>在斜交旋转中，我们区分两种矩阵：<strong>因子模式矩阵 (pattern matrix)</strong>——即通常说的载荷矩阵 L，每个元素是因子对变量的唯一贡献（控制了其他因子后）；<strong>因子结构矩阵 (structure matrix)</strong>——变量与因子之间的简单相关系数。当因子不相关时，两个矩阵相同；当因子相关时，结构矩阵 = 模式矩阵 × 因子相关矩阵。</p>
 
