@@ -91,8 +91,10 @@ zᵢⱼ = (xᵢⱼ - x̄ⱼ) / sⱼ
 # sⱼ 是第 j 个变量的标准差
 
 # 在 Python 中一行完成：
-from sklearn.preprocessing import StandardScaler
-X_scaled = StandardScaler().fit_transform(X)
+from sklearn.preprocessing import \
+    StandardScaler
+X_scaled = StandardScaler() \
+    .fit_transform(X)
 
 # 在 R 中也是：
 X_scaled = scale(X)</code></pre>
@@ -135,14 +137,19 @@ X_scaled = scale(X)</code></pre>
         <p>Bartlett 球形检验的零假设是"相关矩阵是单位矩阵"——即所有变量互不相关。如果检验显著（p < 0.05），我们拒绝零假设，认为变量之间存在相关性，适合做 PCA。如果 p 值较大，说明数据就像白噪声一样乱糟糟的，做 PCA 不会有好的结果。</p>
 
         <pre><code># Python 示例：KMO 和 Bartlett 检验
-from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
+from factor_analyzer.factor_analyzer \
+    import calculate_kmo, \
+    calculate_bartlett_sphericity
 
 # X_scaled 是标准化后的数据矩阵
-kmo_all, kmo_total = calculate_kmo(X_scaled)
+kmo_all, kmo_total = \
+    calculate_kmo(X_scaled)
 print(f"总体 KMO = {kmo_total:.3f}")
 
-chi_square, p_value = calculate_bartlett_sphericity(X_scaled)
-print(f"Bartlett 卡方 = {chi_square:.2f}, p 值 = {p_value:.4f}")</code></pre>
+chi_square, p_value = \
+    calculate_bartlett_sphericity(X_scaled)
+print(f"Bartlett 卡方 = {chi_square:.2f},"
+      f" p 值 = {p_value:.4f}")</code></pre>
 
         <p>注意：这两个检验在 Python 的 <code>factor_analyzer</code> 包中实现，在 R 的 <code>psych</code> 包中也有对应函数。如果 KMO < 0.6 且 Bartlett 检验不显著，建议暂停 PCA 分析，先检查数据的相关性结构。</p>
 
@@ -179,10 +186,12 @@ print(f"Bartlett 卡方 = {chi_square:.2f}, p 值 = {p_value:.4f}")</code></pre>
         <h3>平行分析 (Parallel Analysis)</h3>
         <p>这是最统计严谨的方法。它将实际数据的特征值与随机生成数据的特征值进行比较——如果实际数据的某个特征值大于随机数据的对应特征值，就保留。平行分析有效地控制了"假阳性"——不会因为你恰好拿到一个有随机相关性的样本而误判为有效成分。</p>
 
-        <pre><code># 在 R 中用 psych 包进行平行分析
+        <pre><code># 在 R 中用 psych 包做平行分析
 library(psych)
-fa.parallel(X_scaled, fa="pc", n.iter=100)
-# 图形中会用一条蓝线显示实际特征值，红线显示随机数据的特征值
+fa.parallel(X_scaled, fa="pc",
+            n.iter=100)
+# 蓝线为实际特征值
+# 红线为随机数据的特征值
 # 交叉点即为保留的主成分数</code></pre>
 
         <figure id="fig-pca-select">
@@ -271,7 +280,8 @@ from sklearn.decomposition import PCA
 import pandas as pd
 
 pca = PCA(n_components=3)
-X_pca = pca.fit_transform(X_scaled)  # 得分矩阵 (n × 3)
+X_pca = pca.fit_transform(X_scaled)
+# 得分矩阵 (n × 3)
 
 # 载荷矩阵
 loadings = pd.DataFrame(
@@ -283,7 +293,8 @@ print(loadings)
 
 # 方差解释率
 print(pca.explained_variance_ratio_)
-# [0.7246, 0.1425, 0.0631]  # 示例输出</code></pre>
+# [0.7246, 0.1425, 0.0631]
+# （示例输出）</code></pre>
 
         <p>主成分得分的用途非常广泛：你可以用它作为新特征输入到后续的回归或分类模型中（但要记住上一章的教训——PCA 是无监督的！）；也可以在得分空间中做聚类分析（因为主成分空间是正交的，欧氏距离有效）；还可以用前两三个主成分做可视化——把高维数据投影到二维平面，观察样本的分组模式。</p>
 
@@ -295,7 +306,8 @@ print(pca.explained_variance_ratio_)
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_iris
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import \
+    StandardScaler
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 
@@ -309,8 +321,11 @@ feature_names = iris.feature_names
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# 3. 适用性检验（需要 factor_analyzer 包）
-# KMO ≈ 0.81（良好），Bartlett p ≈ 0.000（显著）——适合做 PCA
+# 3. 适用性检验
+# （需 factor_analyzer 包）
+# KMO ≈ 0.81（良好）
+# Bartlett p ≈ 0.000（显著）
+# ——适合做 PCA
 
 # 4. 提取主成分
 pca = PCA()
@@ -319,9 +334,11 @@ X_pca = pca.fit_transform(X_scaled)
 # 5. 结果
 ev = pca.explained_variance_ratio_
 print(f"方差贡献率: {ev.round(4)}")
-print(f"累计方差贡献率: {np.cumsum(ev).round(4)}")
-# 输出: PC1=0.7296, PC2=0.2285, PC3=0.0367, PC4=0.0052
-# 前两个主成分累计贡献: 95.81%</code></pre>
+print(f"累计贡献率: \
+{np.cumsum(ev).round(4)}")
+# 输出: PC1=0.7296, PC2=0.2285,
+#       PC3=0.0367, PC4=0.0052
+# 前两个主成分累计: 95.81%</code></pre>
 
         <p>看看这个结果多么惊人：4 个原始变量，前两个主成分就解释了 95.8% 的方差！这意味着 iris 数据集本质上是一个二维数据，只是被懒惰地用四维空间表达了。这正是 PCA 的威力——它能发现数据中隐藏的低维结构。</p>
 
@@ -336,11 +353,11 @@ print(f"累计方差贡献率: {np.cumsum(ev).round(4)}")
         <p>再看载荷矩阵：</p>
 
         <pre><code>载荷矩阵（前两个主成分）：
-                     PC1      PC2
-花萼长度 (sepal length)   0.522   -0.377
-花萼宽度 (sepal width)   -0.263   -0.924
-花瓣长度 (petal length)   0.581   -0.049
-花瓣宽度 (petal width)    0.565   -0.066</code></pre>
+              PC1     PC2
+花萼长度(sepal length) 0.522  -0.377
+花萼宽度(sepal width) -0.263  -0.924
+花瓣长度(petal length) 0.581  -0.049
+花瓣宽度(petal width)  0.565  -0.066</code></pre>
 
         <p>解读：PC1 主要受花瓣长度、花瓣宽度和花萼长度的影响（载荷都在 0.5 以上），可以理解为"花的整体大小"因子。PC2 主要由花萼宽度决定（载荷 -0.924），是"花萼宽度"因子。值得注意的是，setosa 品种在 PC1 上得分明显偏低（花瓣更小），versicolor 居中，virginica 得分最高——仅用 PC1 一个维度就能大致区分三个品种！这就是降维的力量。</p>
 
