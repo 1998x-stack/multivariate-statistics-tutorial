@@ -84,15 +84,19 @@ from sklearn.decomposition import KernelPCA
 
 # 生成非线性数据（同心圆）
 from sklearn.datasets import make_circles
-X, y = make_circles(n_samples=400, factor=0.3, noise=0.05)
+X, y = make_circles(
+    n_samples=400, factor=0.3, noise=0.05)
 
 # 标准 PCA —— 失败
 pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X)   # 两个圆混在一起，无法区分
+X_pca = pca.fit_transform(X)
+# 两个圆混在一起，无法区分
 
 # 核 PCA —— 成功分离
-kpca = KernelPCA(n_components=2, kernel='rbf', gamma=15)
-X_kpca = kpca.fit_transform(X)  # 两个圆被完美分离</code></pre>
+kpca = KernelPCA(
+    n_components=2, kernel='rbf', gamma=15)
+X_kpca = kpca.fit_transform(X)
+# 两个圆被完美分离</code></pre>
 
         <p>核 PCA 的关键参数是核函数及其参数。最常用的核包括：</p>
 
@@ -175,15 +179,18 @@ X_kpca = kpca.fit_transform(X)  # 两个圆被完美分离</code></pre>
         <pre><code># Python：稀疏 PCA
 from sklearn.decomposition import SparsePCA
 
-spca = SparsePCA(n_components=3, alpha=1, ridge_alpha=0.01)
+spca = SparsePCA(
+    n_components=3, alpha=1,
+    ridge_alpha=0.01)
 spca.fit(X_scaled)
 
-# 载荷矩阵会非常稀疏——大部分元素为 0
+# 载荷矩阵会非常稀疏
+# ——大部分元素为 0
 # 每个主成分只与少数几个变量相关
 print(spca.components_)
-# [[ 0.      0.      0.      0.92    0.      0.    ]
-#  [ 0.      0.      0.      0.      0.      0.88 ]
-#  [ 0.      0.85    0.      0.      0.      0.    ]]</code></pre>
+# [[0.    0.    0.    0.92  0.    0.  ]
+#  [0.    0.    0.    0.    0.    0.88]
+#  [0.    0.85  0.    0.    0.    0.  ]]</code></pre>
 
         <p>稀疏 PCA 有两个关键参数：<strong>α</strong> 控制 L1 惩罚项的强度（越大越稀疏），<strong>ridge_α</strong> 控制 L2 惩罚（确保解的唯一性和稳定性）。α 的选择通常通过交叉验证——你希望载荷足够稀疏（便于解释），但又不至于稀疏到丢掉重要信息。</p>
 
@@ -196,7 +203,8 @@ print(spca.components_)
         <p><strong>增量 PCA (Incremental PCA, IPCA)</strong> 应运而生。它每次只处理一个小批次 (mini-batch)，然后更新主成分的估计。这意味着你可以用固定内存处理任意大规模的数据——只要你能把数据分成小份。</p>
 
         <pre><code># Python：增量 PCA
-from sklearn.decomposition import IncrementalPCA
+from sklearn.decomposition import \
+    IncrementalPCA
 
 # 假设数据太大，我们分批次读取
 n_batches = 100
@@ -204,12 +212,14 @@ batch_size = 1000
 ipca = IncrementalPCA(n_components=50)
 
 for i in range(n_batches):
-    batch = load_next_batch(batch_size)  # 模拟数据加载
+    batch = load_next_batch(batch_size)
+    # 模拟数据加载
     ipca.partial_fit(batch)
 
-# 此时 ipca 已经学习了所有批次的主成分
-# 可以用 ipca.transform(X_new) 对新数据做投影
-# ipca.explained_variance_ratio_ 给出方差贡献率</code></pre>
+# 此时 ipca 已学习了所有批次的主成分
+# ipca.transform(X_new) 可对新数据投影
+# ipca.explained_variance_ratio_
+# 给出方差贡献率</code></pre>
 
         <p>IPCA 的核心算法基于<strong>随机 SVD</strong>（或者说是一种在线更新的 SVD）。每次新来一批数据，它会在已有 SVD 分解的基础上进行更新，而不是重新计算。这在理论上保证了随着数据的增多，IPCA 的解会收敛到标准 PCA 的解。</p>
 
@@ -228,21 +238,27 @@ from sklearn.decomposition import PCA
 
 # 加载人脸数据集（略作简化）
 # 每张图 62×47 = 2914 像素
-faces = fetch_lfw_people(min_faces_per_person=70)
-X = faces.data    # 形状 (n_samples, 2914)
+faces = fetch_lfw_people(
+    min_faces_per_person=70)
+X = faces.data    # 形状 (n, 2914)
 n_samples, h, w = faces.images.shape
 
 # PCA 降维到 150 个主成分
 pca = PCA(n_components=150)
-X_pca = pca.fit_transform(X)  # 降维：2914 → 150
+X_pca = pca.fit_transform(X)
+# 降维：2914 → 150
 
 # 重建（解压）
-X_reconstructed = pca.inverse_transform(X_pca)
+X_reconstructed = \
+    pca.inverse_transform(X_pca)
 
 # 压缩比计算
-compression_ratio = X.shape[1] / pca.n_components_
-print(f"压缩比：2914 / 150 = {compression_ratio:.1f}:1")
-# 这意味着每个样本只需要存储 150 个系数，而不是 2914 个像素</code></pre>
+compression_ratio = \
+    X.shape[1] / pca.n_components_
+print(f"压缩比：2914 / 150 ="
+      f" {compression_ratio:.1f}:1")
+# 每个样本只需存储 150 个系数
+# 而不是 2914 个像素</code></pre>
 
         <p>看看这个压缩效果：我们将每张人脸从 2,914 像素压缩到 150 个主成分得分，压缩比约为 19:1！重建后的人脸图像仍然能清晰地识别出是谁——主要细节保留，只有一些微小的纹理损失。如果增加到 300 个主成分，重建质量几乎与原始图像无异。</p>
 
