@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第28章 课程总结与项目实战</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        /* 移动端：代码块过长时自动换行，避免整页横向溢出 */
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+        @media (max-width: 768px) {
+            table { display: block; overflow-x: auto; max-width: 100%; }
+        }
+    </style>
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +49,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html" class="active">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第28章　课程总结与项目实战</h1>
+            <p class="article-meta">方法选择决策树 · 综合项目全流程 · 常见错误清单 · 学习路径</p>
+        </header>
 
         <h2>旅程的终点，也是起点</h2>
 
@@ -112,6 +125,37 @@
 └→ F. 我的数据 p >> n 或 n 极大
     ├→ p >> n （变量远多于样本）→ 稀疏PCA / t-SNE（第26章）
     └→ n 极大 （样本量巨大）→ 分布式/增量方法（第27章）</code></pre>
+
+        <figure id="fig-decision">
+            <svg viewBox="0 0 760 500" role="img" aria-labelledby="f28-title f28-desc">
+                <title id="f28-title">多元分析方法选择决策树</title>
+                <desc id="f28-desc">以“分析目标”为根节点，分出六类任务：降维保留信息、样本分群、监督分类、两组变量关联、高维可视化，以及 p 远大于 n 或 n 极大的场景，每类给出推荐方法。</desc>
+                <g font-family="system-ui, sans-serif" text-anchor="middle">
+                    <rect x="300" y="14" width="160" height="42" rx="10" fill="#eef2fb" stroke="#4a6fb5" stroke-width="1.5"></rect>
+                    <text x="380" y="41" font-size="14" font-weight="700" fill="#2b4a86">分析目标？</text>
+                    <path d="M380 56 V450 M300 100 H380 M380 170 H460 M300 240 H380 M380 310 H460 M300 380 H380 M380 450 H460" fill="none" stroke="#3f7d6e" stroke-width="1.4"></path>
+                    <rect x="40" y="72" width="260" height="56" rx="9" fill="#e8f4f1" stroke="#3f7d6e" stroke-width="1.4"></rect>
+                    <text x="170" y="96" font-size="13" font-weight="700" fill="#20564a">A 降维保留信息</text>
+                    <text x="170" y="116" font-size="11.5" fill="#333">连续:PCA · 离散:对应分析</text>
+                    <rect x="460" y="142" width="260" height="56" rx="9" fill="#fdf3e7" stroke="#c07a2b" stroke-width="1.4"></rect>
+                    <text x="590" y="166" font-size="13" font-weight="700" fill="#8a5313">B 样本分群</text>
+                    <text x="590" y="186" font-size="11.5" fill="#333">类数已知:K-means · 未知:层次</text>
+                    <rect x="40" y="212" width="260" height="56" rx="9" fill="#f2ecf7" stroke="#7a4fa3" stroke-width="1.4"></rect>
+                    <text x="170" y="236" font-size="13" font-weight="700" fill="#5a3480">C 监督分类</text>
+                    <text x="170" y="256" font-size="11.5" fill="#333">正态:LDA · 协方差不等:QDA</text>
+                    <rect x="460" y="282" width="260" height="56" rx="9" fill="#e8f4f1" stroke="#3f7d6e" stroke-width="1.4"></rect>
+                    <text x="590" y="306" font-size="13" font-weight="700" fill="#20564a">D 两组变量关联</text>
+                    <text x="590" y="326" font-size="11.5" fill="#333">连续:CCA · 分类:对应分析</text>
+                    <rect x="40" y="352" width="260" height="56" rx="9" fill="#eef2fb" stroke="#4a6fb5" stroke-width="1.4"></rect>
+                    <text x="170" y="376" font-size="13" font-weight="700" fill="#2b4a86">E 高维可视化</text>
+                    <text x="170" y="396" font-size="11.5" fill="#333">线性:PCA/MDS · 非线性:t-SNE</text>
+                    <rect x="460" y="422" width="260" height="56" rx="9" fill="#fdf3e7" stroke="#c07a2b" stroke-width="1.4"></rect>
+                    <text x="590" y="446" font-size="13" font-weight="700" fill="#8a5313">F p≫n 或 n 极大</text>
+                    <text x="590" y="466" font-size="11.5" fill="#333">稀疏PCA/t-SNE · 分布式/增量</text>
+                </g>
+            </svg>
+            <figcaption>图 28-1　方法选择决策树：从分析目标出发，按数据类型与场景选出 PCA、因子分析、聚类、判别、CCA、对应分析、MDS、t-SNE 等方法（章节依据见上文 ASCII 决策树）。</figcaption>
+        </figure>
 
         <p>把这个决策树截图保存，或者抄下来贴在工位上——在实际项目中，它能帮你节省大量的纠结时间。</p>
 
@@ -290,7 +334,7 @@ cca.fit(X_vip, Y_vip)
             <a href="index.html">📖 返回目录</a>
             <a href="javascript:void(0)">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
