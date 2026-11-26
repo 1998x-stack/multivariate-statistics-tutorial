@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第09章　PCA的实战流程</h1>
+            <p class="article-meta">从相关矩阵到主成分得分 · KMO 与 Bartlett 适用性检验 · 主成分数选择 · 载荷矩阵解读 · iris 完整实战</p>
+        </header>
 
         <h2>开篇：从理论到流水线</h2>
 
@@ -91,6 +97,21 @@ X_scaled = StandardScaler().fit_transform(X)
 # 在 R 中也是：
 X_scaled = scale(X)</code></pre>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="z-score 标准化公式，可横向滚动">
+                <math display="block" aria-label="标准化后的取值 z 下标 i j 等于原始值减去该列均值再除以该列标准差">
+                    <mrow>
+                        <msub><mi>z</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo>
+                        <mfrac>
+                            <mrow><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mover><mi>x</mi><mo>¯</mo></mover><mi>j</mi></msub></mrow>
+                            <msub><mi>s</mi><mi>j</mi></msub>
+                        </mfrac>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (9.1)　z-score 标准化：每个变量减去自身均值 <span class="math-inline">x̄<sub>j</sub></span>、再除以自身标准差 <span class="math-inline">s<sub>j</sub></span>，使各变量处于同一尺度，从而让相关矩阵而非量纲主导 PCA。</p>
+        </div>
+
         <h2>步骤3：适用性检验</h2>
 
         <p>不是所有数据都适合做 PCA。如果变量之间几乎不相关，PCA 就失去了意义——每个变量几乎自成一体，降维效果极差。在动手做 PCA 之前，我们需要确认数据中确实存在值得提取的结构。两个标准检验工具：<strong>KMO (Kaiser-Meyer-Olkin)</strong> 和 <strong>Bartlett 球形检验</strong>。</p>
@@ -129,6 +150,21 @@ print(f"Bartlett 卡方 = {chi_square:.2f}, p 值 = {p_value:.4f}")</code></pre>
 
         <p>完成标准化和适用性检验后，我们进入核心环节——提取主成分。这一步在代码中极其简单（sklearn 一行搞定），但选择保留多少个主成分需要深思熟虑。</p>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="累计方差贡献率公式，可横向滚动">
+                <math display="block" aria-label="前 k 个主成分的累计方差贡献率等于前 k 个特征值之和除以全部 p 个特征值之和">
+                    <mrow>
+                        <msub><mtext>累计贡献率</mtext><mi>k</mi></msub><mo>=</mo>
+                        <mfrac>
+                            <mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>λ</mi><mi>j</mi></msub></mrow>
+                            <mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>p</mi></munderover><msub><mi>λ</mi><mi>j</mi></msub></mrow>
+                        </mfrac>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (9.2)　累计方差贡献率：保留前 <span class="math-inline">k</span> 个主成分时，被解释的方差占总方差的比例。Kaiser 规则、累计阈值、scree 图与平行分析都是在为 <span class="math-inline">k</span> 的取值提供依据。</p>
+        </div>
+
         <p>以下是四种最常用的选择标准：</p>
 
         <h3>Kaiser 规则（特征值 > 1）</h3>
@@ -149,11 +185,68 @@ fa.parallel(X_scaled, fa="pc", n.iter=100)
 # 图形中会用一条蓝线显示实际特征值，红线显示随机数据的特征值
 # 交叉点即为保留的主成分数</code></pre>
 
+        <figure id="fig-pca-select">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f09-title f09-desc">
+                <title id="f09-title">iris 主成分特征值与累计方差贡献率</title>
+                <desc id="f09-desc">四根紫色柱子表示四个主成分的特征值，红色虚线为 Kaiser 阈值 1；蓝色折线表示累计方差贡献率，前两个主成分累计已达 95.8%。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <line x1="80" y1="270" x2="620" y2="270" stroke="#cbd5e1"/>
+                <line x1="80" y1="40" x2="80" y2="270" stroke="#cbd5e1"/>
+                <line x1="80" y1="198" x2="620" y2="198" stroke="#e2e8f0" stroke-dasharray="4 4"/>
+                <text x="70" y="203" font-size="12" fill="#64748b" text-anchor="end">1.0</text>
+                <g id="g-bars" fill="#7c3aed">
+                    <rect x="108" y="60" width="64" height="210" rx="4"/>
+                    <rect x="218" y="204" width="64" height="66" rx="4"/>
+                    <rect x="328" y="259" width="64" height="11" rx="4"/>
+                    <rect x="438" y="268" width="64" height="2" rx="4"/>
+                </g>
+                <g font-size="13" fill="#5b21b6" text-anchor="middle">
+                    <text x="140" y="52">2.918</text>
+                    <text x="250" y="196">0.914</text>
+                    <text x="360" y="252">0.147</text>
+                    <text x="470" y="262">0.021</text>
+                </g>
+                <g id="g-line" fill="none" stroke="#0ea5e9" stroke-width="2.5">
+                    <polyline points="140,102 250,50 360,41 470,40"/>
+                    <circle cx="140" cy="102" r="5" fill="#0ea5e9"/><circle cx="250" cy="50" r="5" fill="#0ea5e9"/>
+                    <circle cx="360" cy="41" r="5" fill="#0ea5e9"/><circle cx="470" cy="40" r="5" fill="#0ea5e9"/>
+                </g>
+                <g id="g-kaiser">
+                    <line x1="80" y1="198" x2="620" y2="198" stroke="#ef4444" stroke-width="2" stroke-dasharray="8 5"/>
+                    <text x="616" y="192" font-size="11" fill="#ef4444" text-anchor="end">Kaiser 阈值 = 1</text>
+                </g>
+                <g font-size="12" fill="#334155" text-anchor="middle">
+                    <text x="140" y="292">PC1</text><text x="250" y="292">PC2</text>
+                    <text x="360" y="292">PC3</text><text x="470" y="292">PC4</text>
+                </g>
+                <text x="84" y="26" font-size="13" fill="#334155">特征值（紫色柱）· 累计贡献率（蓝色折线，%）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-cum" aria-pressed="true">累计贡献率折线</button>
+                <button type="button" id="btn-kaiser" aria-pressed="true">Kaiser 阈值线</button>
+                <output id="pca-out" aria-live="polite">默认：前 2 个主成分累计 95.8%</output>
+            </div>
+            <figcaption>图 9-1　iris 的碎石图：PC1（2.918）与 PC2（0.914）远高于其余成分，PC1、PC2 累计贡献 95.8%；只有 PC1 越过 Kaiser 阈值 1，因此 Kaiser 规则这里偏保守，通常结合累计阈值与碎石图保留 2 个主成分（数值来自本章 iris PCA 示例输出）。</figcaption>
+        </figure>
+
         <h2>步骤6：载荷矩阵解读</h2>
 
         <p>选定主成分后，最关键的环节就是解释它们——<strong>载荷矩阵 (loading matrix)</strong> 是解释的工具。</p>
 
         <p>载荷矩阵的每一列对应一个主成分，每一行对应一个原始变量。第 j 列第 i 行的值表示第 i 个原始变量在第 j 个主成分上的<strong>载荷 (loading)</strong>。如果数据经过了标准化，载荷就是原始变量与主成分之间的相关系数。</p>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="主成分载荷与得分公式，可横向滚动">
+                <math display="block" aria-label="第 i 个变量在第 j 个主成分上的载荷等于对应特征向量的分量乘以特征值的平方根；样本得分矩阵等于标准化数据乘以载荷向量矩阵">
+                    <mrow>
+                        <msub><mi>l</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>v</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msqrt><msub><mi>λ</mi><mi>j</mi></msub></msqrt>
+                        <mo>,</mo><mspace width="1.5em"/>
+                        <mi>Z</mi><mo>=</mo><msub><mi>X</mi><mrow><mtext>scaled</mtext></mrow></msub><mi>V</mi>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (9.3)　载荷与得分：特征向量 <span class="math-inline">v<sub>ij</sub></span> 按特征值开方缩放得到载荷 <span class="math-inline">l<sub>ij</sub></span>；标准化数据右乘特征向量矩阵 <span class="math-inline">V</span> 即得样本的主成分得分。</p>
+        </div>
 
         <p>解读载荷矩阵有一些经验法则：</p>
 
@@ -266,8 +359,36 @@ print(f"累计方差贡献率: {np.cumsum(ev).round(4)}")
             <a href="index.html">📖 返回目录</a>
             <a href="10.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-pca-select');
+    if (!fig) return;
+    var line = fig.querySelector('#g-line');
+    var kaiser = fig.querySelector('#g-kaiser');
+    var bCum = document.getElementById('btn-cum');
+    var bK = document.getElementById('btn-kaiser');
+    var out = document.getElementById('pca-out');
+    function render() {
+        var showLine = bCum.getAttribute('aria-pressed') === 'true';
+        var showK = bK.getAttribute('aria-pressed') === 'true';
+        line.style.display = showLine ? '' : 'none';
+        kaiser.style.display = showK ? '' : 'none';
+        out.textContent = (showLine ? '显示' : '隐藏') + '累计贡献率折线；' +
+            (showK ? '显示' : '隐藏') + 'Kaiser 阈值线（阈值=1）';
+    }
+    bCum.addEventListener('click', function () {
+        bCum.setAttribute('aria-pressed', bCum.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    bK.addEventListener('click', function () {
+        bK.setAttribute('aria-pressed', bK.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
