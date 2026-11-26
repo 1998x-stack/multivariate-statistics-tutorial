@@ -8,6 +8,9 @@
     <style>
         /* 移动端：代码块过长时自动换行，避免整页横向溢出 */
         pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+        @media (max-width: 768px) {
+            table { display: block; overflow-x: auto; max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -108,6 +111,8 @@
             </svg>
             <figcaption>图 24-1　Python 多元分析生态：四个核心库各司其职，共享 numpy/pandas 数据层与 fit/predict/transform 接口（分工为教学示意）。</figcaption>
         </figure>
+
+        <h2>PCA in Python</h2>
 
         <p>scikit-learn的 <code>PCA</code> 类是对R的 <code>prcomp()</code> 的Python等价物，底层同样使用SVD分解。用法非常简洁：</p>
 
