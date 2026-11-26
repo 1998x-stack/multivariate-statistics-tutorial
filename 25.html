@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第25章 综合案例：市场细分实战</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        /* 移动端：代码块过长时自动换行，避免整页横向溢出 */
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +46,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第25章　综合案例：市场细分实战</h1>
+            <p class="article-meta">真实商业问题 · PCA→聚类→判别→CCA 流水线 · 用户画像与商业建议</p>
+        </header>
 
         <h2>一个真实的商业场景</h2>
 
@@ -54,6 +64,53 @@
 
         <div class="highlight">
             <strong>本案路线图：</strong>数据预处理 → PCA降维 → K-means聚类 → LDA判别验证 → 群体画像 → CCA深度探索 → 商业建议。每一步的输出是下一步的输入，形成完整的数据分析流水线。
+
+        <figure id="fig-seg-pipeline">
+            <svg viewBox="0 0 760 330" role="img" aria-labelledby="f25-title f25-desc">
+                <title id="f25-title">市场细分分析流水线</title>
+                <desc id="f25-desc">从原始会员库、预处理、PCA 降维、K-means 聚类到判别验证与商业建议的五阶段流水线，每一步的输出作为下一步的输入。</desc>
+                <defs>
+                    <marker id="f25-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                        <path d="M0,0 L8,3 L0,6 Z" fill="#3f7d6e"></path>
+                    </marker>
+                </defs>
+                <g font-family="system-ui, sans-serif" text-anchor="middle">
+                    <rect x="12" y="80" width="136" height="140" rx="10" fill="#eef2fb" stroke="#4a6fb5" stroke-width="1.5"></rect>
+                    <text x="80" y="110" font-size="14" font-weight="700" fill="#2b4a86">1 原始会员库</text>
+                    <text x="80" y="142" font-size="11.5" fill="#333">1000 名会员</text>
+                    <text x="80" y="164" font-size="11.5" fill="#333">50 个维度</text>
+                    <text x="80" y="186" font-size="11.5" fill="#333">人口/行为/态度</text>
+                    <rect x="168" y="80" width="136" height="140" rx="10" fill="#e8f4f1" stroke="#3f7d6e" stroke-width="1.5"></rect>
+                    <text x="236" y="110" font-size="14" font-weight="700" fill="#20564a">2 预处理</text>
+                    <text x="236" y="142" font-size="11.5" fill="#333">缺失值插补</text>
+                    <text x="236" y="164" font-size="11.5" fill="#333">标准化 (z-score)</text>
+                    <text x="236" y="186" font-size="11.5" fill="#333">异常值检查</text>
+                    <rect x="324" y="80" width="136" height="140" rx="10" fill="#fdf3e7" stroke="#c07a2b" stroke-width="1.5"></rect>
+                    <text x="392" y="110" font-size="14" font-weight="700" fill="#8a5313">3 PCA 降维</text>
+                    <text x="392" y="142" font-size="11.5" fill="#333">50 → 若干主成分</text>
+                    <text x="392" y="164" font-size="11.5" fill="#333">按累计方差定阶</text>
+                    <text x="392" y="186" font-size="11.5" fill="#333">去共线性</text>
+                    <rect x="480" y="80" width="136" height="140" rx="10" fill="#f2ecf7" stroke="#7a4fa3" stroke-width="1.5"></rect>
+                    <text x="548" y="110" font-size="14" font-weight="700" fill="#5a3480">4 K-means</text>
+                    <text x="548" y="142" font-size="11.5" fill="#333">肘部法/轮廓系数</text>
+                    <text x="548" y="164" font-size="11.5" fill="#333">客户分群</text>
+                    <text x="548" y="186" font-size="11.5" fill="#333">群体解释</text>
+                    <rect x="636" y="80" width="112" height="140" rx="10" fill="#eef2ef" stroke="#3f7d6e" stroke-width="1.5"></rect>
+                    <text x="692" y="104" font-size="13" font-weight="700" fill="#20564a">5 验证与建议</text>
+                    <text x="692" y="130" font-size="11" fill="#333">LDA 判别验证</text>
+                    <text x="692" y="150" font-size="11" fill="#333">群体画像</text>
+                    <text x="692" y="170" font-size="11" fill="#333">CCA 关联探索</text>
+                    <text x="692" y="190" font-size="11" fill="#333">商业建议</text>
+                    <path d="M148 150 H166" stroke="#3f7d6e" stroke-width="1.6" marker-end="url(#f25-arrow)"></path>
+                    <path d="M304 150 H322" stroke="#3f7d6e" stroke-width="1.6" marker-end="url(#f25-arrow)"></path>
+                    <path d="M460 150 H478" stroke="#3f7d6e" stroke-width="1.6" marker-end="url(#f25-arrow)"></path>
+                    <path d="M616 150 H634" stroke="#3f7d6e" stroke-width="1.6" marker-end="url(#f25-arrow)"></path>
+                    <text x="380" y="272" font-size="12" fill="#555">每一步的输出即下一步的输入；PCA 先行降维可缓解聚类的高维/共线性问题</text>
+                    <text x="380" y="294" font-size="11.5" fill="#777">案例数据规模与流程为教学示意，指标结论以本章推导为准</text>
+                </g>
+            </svg>
+            <figcaption>图 25-1　市场细分分析流水线：原始会员库→预处理→PCA 降维→K-means 聚类→判别验证与商业建议（数据规模与流程为教学示意）。</figcaption>
+        </figure>
         </div>
 
         <h2>数据预处理</h2>
@@ -342,7 +399,7 @@ print(pd.DataFrame(cca.y_weights_,
             <a href="index.html">📖 返回目录</a>
             <a href="26.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
