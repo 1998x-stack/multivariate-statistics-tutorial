@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第13章　因子得分与解释</h1>
+            <p class="article-meta">因子得分的不确定性 · 回归法/Thompson 与 Bartlett 法 · 因子命名原则 · 心理学量表完整案例与报告规范</p>
+        </header>
 
         <h2>开篇：因子求出之后</h2>
 
@@ -80,6 +86,18 @@ L: 因子载荷矩阵（p × m），已知（已估计出）</code></pre>
 
         <p>在正交因子模型下，回归法的因子得分计算公式为：</p>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="回归法因子得分公式，可横向滚动">
+                <math display="block" aria-label="回归法因子得分估计等于载荷矩阵转置乘以相关矩阵的逆再乘以标准化观测向量">
+                    <mrow>
+                        <mover><mi>f</mi><mo>^</mo></mover><mo>=</mo>
+                        <msup><mi>L</mi><mo>⊤</mo></msup><msup><mi>R</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>x</mi>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (13.1)　回归法（Thompson 法）：权重 <span class="math-inline">LᵀR⁻¹</span> 使预测因子得分与真实因子的均方误差最小，代价是得分方差被收缩（有偏）。</p>
+        </div>
+
         <pre><code>回归法因子得分：
 
 f̂ = Lᵀ R⁻¹ x （标准化后的数据）
@@ -91,9 +109,11 @@ x: 标准化后的观测向量（p × 1）
 f̂: 估计的因子得分向量（m × 1）
 
 用 Python 计算：
-from factor_analyzer.factor_analyzer import FactorAnalyzer
+from factor_analyzer.factor_analyzer \
+    import FactorAnalyzer
 
-fa = FactorAnalyzer(n_factors=3, rotation='varimax')
+fa = FactorAnalyzer(
+    n_factors=3, rotation='varimax')
 fa.fit(X)
 
 # 回归法因子得分（默认）
@@ -101,9 +121,10 @@ scores = fa.transform(X)
 
 # 或者手动计算：
 import numpy as np
-L = fa.loadings_              # 载荷矩阵 p × m
-R = np.corrcoef(X.T)          # 相关矩阵 p × p
-scores = X @ L @ np.linalg.inv(L.T @ L)  # 近似公式</code></pre>
+L = fa.loadings_        # p × m
+R = np.corrcoef(X.T)    # p × p
+scores = X @ L @ \
+    np.linalg.inv(L.T @ L)</code></pre>
 
         <p>回归法得到的因子得分是<strong>有偏的</strong>——它们的方差会被压缩（向均值收缩）。但它们的<strong>均方误差最小</strong>，而且与真实因子的相关性最高。在大多数实际应用中，回归法是一个合理的选择。</p>
 
@@ -115,6 +136,21 @@ scores = X @ L @ np.linalg.inv(L.T @ L)  # 近似公式</code></pre>
 
         <p>Bartlett 得分的公式为：</p>
 
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Bartlett 因子得分公式，可横向滚动">
+                <math display="block" aria-label="Bartlett 因子得分等于 L 转置 Ψ 逆 L 整体的逆，乘以 L 转置 Ψ 逆 x；Ψ 为对角特殊方差矩阵">
+                    <mrow>
+                        <mover><mi>f</mi><mo>^</mo></mover><mo>=</mo>
+                        <msup><mrow><mo>(</mo><msup><mi>L</mi><mo>⊤</mo></msup><msup><mi>Ψ</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>L</mi><mo>)</mo></mrow><mrow><mo>−</mo><mn>1</mn></mrow></msup>
+                        <msup><mi>L</mi><mo>⊤</mo></msup><msup><mi>Ψ</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mi>x</mi>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>Ψ</mi><mo>=</mo><mtext>diag</mtext><mo>(</mo><msub><mi>ψ</mi><mn>1</mn></msub><mo>,</mo><mo>…</mo><mo>,</mo><msub><mi>ψ</mi><mi>p</mi></msub><mo>)</mo>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (13.2)　Bartlett 法：使特殊因子 <span class="math-inline">ε</span> 的加权平方和最小，得分无偏但方差更大；两种估计在后续回归与描述性分析中各有取舍。</p>
+        </div>
+
         <pre><code>Bartlett 因子得分：
 
 f̂ = (Lᵀ Ψ⁻¹ L)⁻¹ Lᵀ Ψ⁻¹ x
@@ -125,7 +161,8 @@ Bartlett 得分是<strong>无偏的</strong>——它们的期望等于真实因
 但它们的方差比回归法大（因为无偏估计通常方差更大）。
 
 在 Python 中指定 Bartlett 法：
-scores_bartlett = fa.transform(X, method='bartlett')</code></pre>
+scores_bartlett = fa.transform(
+    X, method='bartlett')</code></pre>
 
         <p>回归法与 Bartlett 法的选择取决于你的目标：</p>
 
@@ -173,30 +210,37 @@ scores_bartlett = fa.transform(X, method='bartlett')</code></pre>
         <pre><code># Python：完整因子分析流程
 import pandas as pd
 import numpy as np
-from factor_analyzer import FactorAnalyzer, calculate_kmo, calculate_bartlett_sphericity
+from factor_analyzer import \
+    FactorAnalyzer, calculate_kmo, \
+    calculate_bartlett_sphericity
 from factor_analyzer import Rotator
 
-# 1. 加载数据（假设有 12 列、500 行）
-# 列名: EE1-EE4 (情绪耗竭), DP1-DP4 (去人格化), PA1-PA4 (低成就感)
+# 1. 加载数据（12 列、500 行）
+# 列名: EE1-EE4 情绪耗竭
+#       DP1-DP4 去人格化
+#       PA1-PA4 低成就感
 data = pd.read_csv('burnout_scale.csv')
 
 # 2. 适用性检验
-kmo_all, kmo_total = calculate_kmo(data)
-chi2, p = calculate_bartlett_sphericity(data)
-print(f"KMO = {kmo_total:.3f}")   # 假设输出 0.87 → 良好
-print(f"Bartlett p = {p:.4f}")    # 假设输出 0.000 → 显著
+kmo_all, kmo_total = \
+    calculate_kmo(data)
+chi2, p = \
+    calculate_bartlett_sphericity(data)
+print(f"KMO = {kmo_total:.3f}")  # 良好
+print(f"Bartlett p = {p:.4f}")   # 显著
 
 # 3. 决定因子数（平行分析）
-# 可以使用 fa_parallel 函数（来自 psych 包的心理测量学传统）
+# fa_parallel 来自 psych 传统
 # 这里假设平行分析建议 3 个因子
 
 # 4. 提取因子并进行旋转
-fa = FactorAnalyzer(n_factors=3, rotation='varimax')
+fa = FactorAnalyzer(
+    n_factors=3, rotation='varimax')
 fa.fit(data)
 
 # 5. 检查结果
 ev, v = fa.get_eigenvalues()
-print(f"方差贡献率: {fa.get_factor_variance()}")
+print(f"因子方差: {fa.get_factor_variance()}")
 
 # 6. 载荷矩阵（已旋转）
 loadings = pd.DataFrame(
@@ -228,6 +272,50 @@ print(loadings.round(3))
         <div class="highlight">
             <strong>结果验证：</strong>注意，我们"发现"的因子结构恰好与量表设计时的理论维度一致——这在量表开发和验证中叫作<strong>结构效度 (construct validity)</strong> 验证。如果实际数据跑出来的因子结构与理论预期不符，则需要反思：是理论有问题？量表题目设计有缺陷？还是被试群体的特殊性导致的？因子分析在社科研究中常用于这个目的——验证一个测量工具是否真的测量了它声称要测量的概念。
         </div>
+
+        <figure id="fig-load">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f13-title f13-desc">
+                <title id="f13-title">旋转后因子载荷矩阵的简单结构</title>
+                <desc id="f13-desc">12 个题目在三个因子上的旋转后载荷热力图：EE1-EE4 在因子1上高载荷，DP1-DP4 在因子2上高载荷，PA1-PA4 在因子3上高载荷，交叉载荷接近零，呈现清晰简单结构。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <text x="40" y="30" font-size="13" fill="#334155">旋转后载荷矩阵（|负载荷| 越深表示关联越强）</text>
+                <rect x="520" y="42" width="16" height="12" fill="#7c3aed" fill-opacity="0.8"/>
+                <text x="542" y="52" font-size="12" fill="#334155">正载荷</text>
+                <rect x="612" y="42" width="16" height="12" fill="#0ea5e9" fill-opacity="0.8"/>
+                <text x="634" y="52" font-size="12" fill="#334155">负载荷</text>
+                <g font-size="12" fill="#5b21b6" text-anchor="middle">
+                    <text x="221" y="64">因子1</text><text x="263" y="64">因子2</text><text x="305" y="64">因子3</text>
+                </g>
+                <g id="col1">
+                    <rect x="200" y="70" width="42" height="16" fill="#7c3aed" fill-opacity="0.82"/><rect x="200" y="86" width="42" height="16" fill="#7c3aed" fill-opacity="0.78"/><rect x="200" y="102" width="42" height="16" fill="#7c3aed" fill-opacity="0.85"/><rect x="200" y="118" width="42" height="16" fill="#7c3aed" fill-opacity="0.76"/>
+                    <rect x="200" y="134" width="42" height="16" fill="#7c3aed" fill-opacity="0.03"/><rect x="200" y="150" width="42" height="16" fill="#0ea5e9" fill-opacity="0.01"/><rect x="200" y="166" width="42" height="16" fill="#7c3aed" fill-opacity="0.05"/><rect x="200" y="182" width="42" height="16" fill="#0ea5e9" fill-opacity="0.02"/>
+                    <rect x="200" y="198" width="42" height="16" fill="#7c3aed" fill-opacity="0.04"/><rect x="200" y="214" width="42" height="16" fill="#0ea5e9" fill-opacity="0.03"/><rect x="200" y="230" width="42" height="16" fill="#7c3aed" fill-opacity="0.01"/><rect x="200" y="246" width="42" height="16" fill="#7c3aed" fill-opacity="0.06"/>
+                </g>
+                <g id="col2">
+                    <rect x="242" y="70" width="42" height="16" fill="#0ea5e9" fill-opacity="0.02"/><rect x="242" y="86" width="42" height="16" fill="#7c3aed" fill-opacity="0.05"/><rect x="242" y="102" width="42" height="16" fill="#7c3aed" fill-opacity="0.01"/><rect x="242" y="118" width="42" height="16" fill="#7c3aed" fill-opacity="0.08"/>
+                    <rect x="242" y="134" width="42" height="16" fill="#7c3aed" fill-opacity="0.79"/><rect x="242" y="150" width="42" height="16" fill="#7c3aed" fill-opacity="0.82"/><rect x="242" y="166" width="42" height="16" fill="#7c3aed" fill-opacity="0.74"/><rect x="242" y="182" width="42" height="16" fill="#7c3aed" fill-opacity="0.80"/>
+                    <rect x="242" y="198" width="42" height="16" fill="#0ea5e9" fill-opacity="0.01"/><rect x="242" y="214" width="42" height="16" fill="#7c3aed" fill-opacity="0.02"/><rect x="242" y="230" width="42" height="16" fill="#7c3aed" fill-opacity="0.05"/><rect x="242" y="246" width="42" height="16" fill="#0ea5e9" fill-opacity="0.03"/>
+                </g>
+                <g id="col3">
+                    <rect x="284" y="70" width="42" height="16" fill="#0ea5e9" fill-opacity="0.01"/><rect x="284" y="86" width="42" height="16" fill="#7c3aed" fill-opacity="0.03"/><rect x="284" y="102" width="42" height="16" fill="#0ea5e9" fill-opacity="0.02"/><rect x="284" y="118" width="42" height="16" fill="#7c3aed" fill-opacity="0.04"/>
+                    <rect x="284" y="134" width="42" height="16" fill="#0ea5e9" fill-opacity="0.01"/><rect x="284" y="150" width="42" height="16" fill="#7c3aed" fill-opacity="0.02"/><rect x="284" y="166" width="42" height="16" fill="#7c3aed" fill-opacity="0.06"/><rect x="284" y="182" width="42" height="16" fill="#0ea5e9" fill-opacity="0.03"/>
+                    <rect x="284" y="198" width="42" height="16" fill="#7c3aed" fill-opacity="0.71"/><rect x="284" y="214" width="42" height="16" fill="#7c3aed" fill-opacity="0.78"/><rect x="284" y="230" width="42" height="16" fill="#7c3aed" fill-opacity="0.74"/><rect x="284" y="246" width="42" height="16" fill="#7c3aed" fill-opacity="0.68"/>
+                </g>
+                <g font-size="12" fill="#334155" text-anchor="end">
+                    <text x="194" y="82">EE1</text><text x="194" y="98">EE2</text><text x="194" y="114">EE3</text><text x="194" y="130">EE4</text>
+                    <text x="194" y="146">DP1</text><text x="194" y="162">DP2</text><text x="194" y="178">DP3</text><text x="194" y="194">DP4</text>
+                    <text x="194" y="210">PA1</text><text x="194" y="226">PA2</text><text x="194" y="242">PA3</text><text x="194" y="258">PA4</text>
+                </g>
+                <g font-size="12" fill="#64748b"><text x="360" y="120">← EE1-EE4 归因子1</text><text x="360" y="180">← DP1-DP4 归因子2</text><text x="360" y="240">← PA1-PA4 归因子3</text></g>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-f1" aria-pressed="false">高亮 因子1</button>
+                <button type="button" id="btn-f2" aria-pressed="false">高亮 因子2</button>
+                <button type="button" id="btn-f3" aria-pressed="false">高亮 因子3</button>
+                <output id="load-out" aria-live="polite">全部因子：简单结构清晰</output>
+            </div>
+            <figcaption>图 13-1　旋转后载荷矩阵的简单结构：EE（情绪耗竭）在因子1、DP（去人格化）在因子2、PA（低成就感）在因子3 上各自成块，交叉载荷趋近于零（载荷为本章心理学量表案例的假设输出，非实测数据）。</figcaption>
+        </figure>
 
         <h2>因子分析报告规范</h2>
 
@@ -262,8 +350,39 @@ print(loadings.round(3))
             <a href="index.html">📖 返回目录</a>
             <a href="14.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-load');
+    if (!fig) return;
+    var cols = [fig.querySelector('#col1'), fig.querySelector('#col2'), fig.querySelector('#col3')];
+    var btns = [document.getElementById('btn-f1'), document.getElementById('btn-f2'), document.getElementById('btn-f3')];
+    var names = ['因子1（情绪耗竭）', '因子2（去人格化）', '因子3（低成就感）'];
+    var out = document.getElementById('load-out');
+    function render() {
+        var active = -1;
+        for (var i = 0; i < btns.length; i++) {
+            if (btns[i].getAttribute('aria-pressed') === 'true') active = i;
+        }
+        for (var j = 0; j < cols.length; j++) {
+            cols[j].style.opacity = (active === -1 || active === j) ? '1' : '0.15';
+        }
+        out.textContent = active === -1 ? '全部因子：简单结构清晰'
+            : '已高亮 ' + names[active] + ' 对应的一列';
+    }
+    function bind(i) {
+        btns[i].addEventListener('click', function () {
+            var on = btns[i].getAttribute('aria-pressed') === 'true';
+            for (var k = 0; k < btns.length; k++) btns[k].setAttribute('aria-pressed', 'false');
+            btns[i].setAttribute('aria-pressed', on ? 'false' : 'true');
+            render();
+        });
+    }
+    for (var i = 0; i < btns.length; i++) bind(i);
+    render();
+})();
+</script>
 </body>
 </html>
