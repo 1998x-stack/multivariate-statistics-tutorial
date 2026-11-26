@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +42,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第20章　CCA的显著性检验与解释</h1>
+            <p class="article-meta">Wilks Λ 序贯检验与 Bartlett 近似 · 典型变量的维度选择 · 典型载荷/交叉载荷/冗余指数 · 结果可视化与踩坑故事</p>
+        </header>
 
         <h2>开篇：有多少"相关"是真实的？</h2>
 
@@ -56,9 +62,12 @@
 
         <p>对于 m = min(p, q) 对典型相关系数 ρ₁ ≥ ρ₂ ≥ ... ≥ ρₘ，我们要依次检验：</p>
 
-        <pre><code>H₀⁽¹⁾: ρ₁ = ρ₂ = ... = ρₘ = 0 （所有典型相关均为零——两组变量不相关）
+        <pre><code>H₀⁽¹⁾: ρ₁ = ρ₂ = ... = ρₘ = 0
+（所有典型相关均为零
+——两组变量不相关）
 如果拒绝 H₀⁽¹⁾，继续检验：
-H₀⁽²⁾: ρ₂ = ... = ρₘ = 0 （去掉第一对后，剩余的均为零）
+H₀⁽²⁾: ρ₂ = ... = ρₘ = 0
+（去掉第一对后，剩余的均为零）
 H₀⁽³⁾: ρ₃ = ... = ρₘ = 0
 ...以此类推
 
@@ -68,6 +77,34 @@ Wilks Λ 统计量定义为：
 巴特利特 (Bartlett) 给出了近似 χ² 变换：
 χ²ₖ = -[n - k - ½(p + q + 1)] · ln(Λₖ)
 自由度 df = (p - k + 1)(q - k + 1)</code></pre>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Wilks Lambda 序贯检验统计量，可横向滚动">
+                <math display="block" aria-label="Wilks Lambda 下标 k 等于从 i 等于 k 到 m 的连乘积，每一项为 1 减去第 i 个典型相关系数的平方">
+                    <mrow>
+                        <msub><mi>Λ</mi><mi>k</mi></msub><mo>=</mo>
+                        <munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mi>k</mi></mrow><mi>m</mi></munderover>
+                        <mrow><mo>(</mo><mn>1</mn><mo>−</mo><msubsup><mi>ρ</mi><mi>i</mi><mn>2</mn></msubsup><mo>)</mo></mrow>
+                        <mo>,</mo><mspace width="1em"/>
+                        <mi>m</mi><mo>=</mo><mo>min</mo><mo>(</mo><mi>p</mi><mo>,</mo><mi>q</mi><mo>)</mo>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (20.1)　Wilks Λ：序贯检验从 <span class="math-inline">Λ₁</span> 开始，逐步剔除已显著的典型相关对，直到某步不显著为止。</p>
+        </div>
+
+        <div class="math-equation">
+            <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Bartlett 近似卡方变换，可横向滚动">
+                <math display="block" aria-label="卡方统计量等于负的中括号 n 减 k 减二分之一 p 加 q 加 1 乘以 ln Λ 下标 k">
+                    <mrow>
+                        <msubsup><mi>χ</mi><mi>k</mi><mn>2</mn></msubsup><mo>=</mo>
+                        <mo>−</mo><mrow><mo>[</mo><mi>n</mi><mo>−</mo><mi>k</mi><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo>+</mo><mn>1</mn><mo>)</mo><mo>]</mo></mrow>
+                        <mo>ln</mo><msub><mi>Λ</mi><mi>k</mi></msub>
+                    </mrow>
+                </math>
+            </div>
+            <p class="math-caption">式 (20.2)　Bartlett 近似：当 <span class="math-inline">n</span> 足够大时 <span class="math-inline">χ²_k</span> 近似服从自由度为 <span class="math-inline">(p−k+1)(q−k+1)</span> 的卡方分布，由此得到 p 值。</p>
+        </div>
 
         <p>这个序贯检验从 Λ₁ 开始。如果 p 值 < 0.05，拒绝 H₀⁽¹⁾，说明至少第一对典型相关是显著的。然后检验 Λ₂，依此类推。当某一步的 p 值 > 0.05 时停止，从这一步起的后续典型相关对都不显著。</p>
 
@@ -97,6 +134,30 @@ Wilks Λ 统计量定义为：
             <strong>实践建议：</strong>先看统计显著性做初筛，然后用交叉验证检验稳定性（在子样本上重复CCA，看典型载荷是否一致），最后问自己一个问题："我能用两三句话向业务同事解释这对典型变量的含义吗？"如果不能，就别保留。
         </div>
 
+        <figure id="fig-ccavar">
+            <svg viewBox="0 0 720 340" role="img" aria-labelledby="f20-title f20-desc">
+                <title id="f20-title">第一对典型变量的散点图</title>
+                <desc id="f20-desc">以经济组典型变量 u1 为横轴、健康组典型变量 v1 为纵轴，样本点沿对角线聚集，显示第一对典型相关较强。</desc>
+                <rect width="720" height="340" fill="#fafafe"/>
+                <line x1="200" y1="180" x2="520" y2="180" stroke="#cbd5e1"/>
+                <line x1="360" y1="40" x2="360" y2="320" stroke="#cbd5e1"/>
+                <text x="508" y="198" font-size="12" fill="#64748b">u1</text>
+                <text x="368" y="50" font-size="12" fill="#64748b">v1</text>
+                <line id="fit-line" x1="234" y1="292" x2="486" y2="72" stroke="#14b8a6" stroke-width="2" stroke-dasharray="7 5"/>
+                <g id="g-samples" fill="#7c3aed">
+                    <circle cx="234" cy="292" r="7"/><circle cx="252" cy="272" r="7"/><circle cx="270" cy="266" r="7"/><circle cx="288" cy="239" r="7"/><circle cx="315" cy="225" r="7"/><circle cx="342" cy="189" r="7"/><circle cx="360" cy="176" r="7"/><circle cx="378" cy="160" r="7"/><circle cx="405" cy="144" r="7"/><circle cx="432" cy="112" r="7"/><circle cx="450" cy="104" r="7"/><circle cx="468" cy="81" r="7"/><circle cx="486" cy="72" r="7"/>
+                </g>
+                <text x="80" y="30" font-size="13" fill="#334155">第一对典型变量散点：u1（经济）× v1（健康）</text>
+                <text id="rho-label" x="80" y="54" font-size="12" fill="#0f766e">ρ = 0.892（示意值）</text>
+            </svg>
+            <div class="figure-controls">
+                <button type="button" id="btn-fit" aria-pressed="true">显示趋势线</button>
+                <button type="button" id="btn-pts" aria-pressed="true">显示样本点</button>
+                <output id="ccavar-out" aria-live="polite">样本沿对角线聚集，第一对典型相关强</output>
+            </div>
+            <figcaption>图 20-1　第一对典型变量的散点图：点沿对角线方向聚集说明 u1 与 v1 强相关（ρ = 0.892，示意值）。若第二对典型变量也可解释，则可在同一样本上绘制第二对散点。</figcaption>
+        </figure>
+
         <h2>典型结构分析</h2>
 
         <p>确定了保留的典型变量对数后，下一步是解读它们。典型结构分析主要包括三个层次。</p>
@@ -104,7 +165,8 @@ Wilks Λ 统计量定义为：
         <h3>层次一：典型载荷 (Canonical Loadings)</h3>
         <p>典型载荷是原始变量与自身组典型变量的相关系数。例如，假设第一对典型变量 u₁ 的载荷为：</p>
 
-        <pre><code>u₁ = 0.52·生活质量 + 0.48·预期寿命 - 0.03·犯罪率 + 0.41·教育资源
+        <pre><code>u₁ = 0.52·生活质量 + 0.48·预期寿命
+     - 0.03·犯罪率 + 0.41·教育资源
 
 载荷解读：
 - 生活质量和预期寿命在 u₁ 上有较大的正载荷（>0.40）
@@ -127,8 +189,12 @@ Wilks Λ 统计量定义为：
 
         <pre><code># R代码示例
 library(CCA)
-X <- data.frame(GDP = c(...), 就业率 = c(...), 教育支出 = c(...))
-Y <- data.frame(预期寿命 = c(...), 婴儿存活率 = c(...), 医保覆盖 = c(...))
+X <- data.frame(GDP = c(...),
+                就业率 = c(...),
+                教育支出 = c(...))
+Y <- data.frame(预期寿命 = c(...),
+                婴儿存活率 = c(...),
+                医保覆盖 = c(...))
 
 cc_result <- cc(X, Y)
 cc_result$cor  # 典型相关系数
@@ -136,25 +202,39 @@ cc_result$cor  # 典型相关系数
 
 # Wilks Lambda 检验
 library(CCP)
-p.asym(cc_result$cor, nrow(X), ncol(X), ncol(Y))
-# 输出：第一对 p < 0.001，第二对 p = 0.087，第三对 p = 0.642</code></pre>
+p.asym(cc_result$cor, nrow(X),
+       ncol(X), ncol(Y))
+# 输出：第一对 p < 0.001，
+# 第二对 p = 0.087，
+# 第三对 p = 0.642</code></pre>
 
         <p><strong>第二步：保留第一对典型变量</strong></p>
 
         <pre><code>典型系数：
-a₁ (经济→u₁): GDP=0.61, 就业率=0.35, 教育支出=0.52
-b₁ (健康→v₁): 预期寿命=0.58, 婴儿存活率=0.33, 医保覆盖=0.47
+a₁ (经济→u₁):
+  GDP=0.61, 就业率=0.35,
+  教育支出=0.52
+b₁ (健康→v₁):
+  预期寿命=0.58, 婴儿存活率=0.33,
+  医保覆盖=0.47
 
 典型载荷：
-经济变量对 u₁ 的载荷:  GDP=0.89, 就业率=0.52, 教育支出=0.74
-健康变量对 v₁ 的载荷:  预期寿命=0.91, 婴儿存活率=0.55, 医保覆盖=0.68
+经济变量对 u₁ 的载荷:
+  GDP=0.89, 就业率=0.52,
+  教育支出=0.74
+健康变量对 v₁ 的载荷:
+  预期寿命=0.91, 婴儿存活率=0.55,
+  医保覆盖=0.68
 
 交叉载荷（经济变量对 v₁）：
 GDP=0.79, 就业率=0.46, 教育支出=0.66
 
 冗余指数：
-Rd(经济|v₁) = (0.89²+0.52²+0.74²)/3 × 0.892² = 0.539 × 0.796 = 0.429
-→ 健康变量的典型变量 v₁ 能解释经济变量组 42.9% 的变异</code></pre>
+Rd(经济|v₁) =
+  (0.89²+0.52²+0.74²)/3 × 0.892²
+  = 0.539 × 0.796 = 0.429
+→ 健康变量的典型变量 v₁
+  能解释经济变量组 42.9% 的变异</code></pre>
 
         <p><strong>第三步：解读</strong></p>
         <p>u₁ 可以被命名为"经济发展水平"——因为GDP、教育支出载荷高。v₁ 可以被命名为"国民健康水平"。典型相关系数 ρ=0.892，说明经济发展水平和国民健康水平之间有着很强的正相关。冗余指数42.9%也相当可观——健康水平指标能解释近一半的经济指标变异。这个分析为国家层面的政策评估提供了量化依据。</p>
@@ -197,8 +277,36 @@ Rd(经济|v₁) = (0.89²+0.52²+0.74²)/3 × 0.892² = 0.539 × 0.796 = 0.429
             <a href="index.html">📖 返回目录</a>
             <a href="21.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
+<script>
+(function () {
+    var fig = document.getElementById('fig-ccavar');
+    if (!fig) return;
+    var line = fig.querySelector('#fit-line');
+    var pts = fig.querySelector('#g-samples');
+    var bFit = document.getElementById('btn-fit');
+    var bPts = document.getElementById('btn-pts');
+    var out = document.getElementById('ccavar-out');
+    function render() {
+        var f = bFit.getAttribute('aria-pressed') === 'true';
+        var p = bPts.getAttribute('aria-pressed') === 'true';
+        line.style.display = f ? '' : 'none';
+        pts.style.display = p ? '' : 'none';
+        out.textContent = (f ? '显示趋势线；' : '隐藏趋势线；') +
+            (p ? '显示样本点' : '隐藏样本点');
+    }
+    bFit.addEventListener('click', function () {
+        bFit.setAttribute('aria-pressed', bFit.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    bPts.addEventListener('click', function () {
+        bPts.setAttribute('aria-pressed', bPts.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        render();
+    });
+    render();
+})();
+</script>
 </body>
 </html>
