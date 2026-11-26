@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第24章 Python实现多元分析</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        /* 移动端：代码块过长时自动换行，避免整页横向溢出 */
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+    </style>
 </head>
 <body>
+<a class="skip-link" href="#content">跳转至正文</a>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="课程目录">
         <h3>📊 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 多元统计分析概述</a></li>
@@ -41,8 +46,13 @@
             <li><a href="27.html">第27章 多元分析在大数据中的应用</a></li>
             <li><a href="28.html">第28章 课程总结与项目实战</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content" id="content">
+
+        <header class="article-header">
+            <h1>第24章　Python实现多元分析</h1>
+            <p class="article-meta">scikit-learn 统一 API · 因子分析工具链 · 聚类与判别 · 两库结果对齐</p>
+        </header>
 
         <h2>为什么用Python做多元分析</h2>
 
@@ -58,7 +68,46 @@
             <tr><td>matplotlib/seaborn</td><td>可视化</td><td>pairplot, heatmap, clustermap</td><td>与pandas无缝集成</td></tr>
         </table>
 
-        <h2>PCA in Python</h2>
+        <figure id="fig-py-ecosystem">
+            <svg viewBox="0 0 760 330" role="img" aria-labelledby="f24-title f24-desc">
+                <title id="f24-title">Python 多元分析生态</title>
+                <desc id="f24-desc">四个核心库对应不同职责：scikit-learn 做通用降维与聚类判别，statsmodels 做统计推断，factor_analyzer 专门做因子分析，matplotlib/seaborn 负责可视化，均构建在 numpy/pandas 数据层上，共享 fit/predict/transform 接口。</desc>
+                <g font-family="system-ui, sans-serif" text-anchor="middle">
+                    <rect x="12" y="60" width="175" height="150" rx="10" fill="#eef2fb" stroke="#4a6fb5" stroke-width="1.5"></rect>
+                    <text x="99" y="88" font-size="14" font-weight="700" fill="#2b4a86">scikit-learn</text>
+                    <text x="99" y="112" font-size="11.5" fill="#333">PCA / KernelPCA</text>
+                    <text x="99" y="134" font-size="11.5" fill="#333">KMeans / DBSCAN</text>
+                    <text x="99" y="156" font-size="11.5" fill="#333">LDA / QDA</text>
+                    <text x="99" y="178" font-size="11.5" fill="#333">CCA</text>
+
+                    <rect x="202" y="60" width="175" height="150" rx="10" fill="#e8f4f1" stroke="#3f7d6e" stroke-width="1.5"></rect>
+                    <text x="289" y="88" font-size="14" font-weight="700" fill="#20564a">statsmodels</text>
+                    <text x="289" y="112" font-size="11.5" fill="#333">MANOVA / OLS</text>
+                    <text x="289" y="134" font-size="11.5" fill="#333">Factor analysis</text>
+                    <text x="289" y="156" font-size="11.5" fill="#333">CCA (canonical)</text>
+                    <text x="289" y="178" font-size="11.5" fill="#333">p值 / 置信区间</text>
+
+                    <rect x="392" y="60" width="175" height="150" rx="10" fill="#fdf3e7" stroke="#c07a2b" stroke-width="1.5"></rect>
+                    <text x="479" y="88" font-size="14" font-weight="700" fill="#8a5313">factor_analyzer</text>
+                    <text x="479" y="112" font-size="11.5" fill="#333">FactorAnalyzer</text>
+                    <text x="479" y="134" font-size="11.5" fill="#333">calculate_kmo</text>
+                    <text x="479" y="156" font-size="11.5" fill="#333">bartlett_sphericity</text>
+                    <text x="479" y="178" font-size="11.5" fill="#333">varimax / promax</text>
+
+                    <rect x="582" y="60" width="166" height="150" rx="10" fill="#f2ecf7" stroke="#7a4fa3" stroke-width="1.5"></rect>
+                    <text x="665" y="88" font-size="13" font-weight="700" fill="#5a3480">matplotlib/seaborn</text>
+                    <text x="665" y="112" font-size="11.5" fill="#333">pairplot</text>
+                    <text x="665" y="134" font-size="11.5" fill="#333">heatmap</text>
+                    <text x="665" y="156" font-size="11.5" fill="#333">clustermap</text>
+                    <text x="665" y="178" font-size="11.5" fill="#333">scatter / arrow</text>
+
+                    <rect x="12" y="232" width="736" height="56" rx="10" fill="#f6f6fa" stroke="#a9a9c4" stroke-width="1.4"></rect>
+                    <text x="380" y="258" font-size="13" font-weight="700" fill="#3b3b55">numpy / pandas 数据层 · fit / predict / transform 统一接口</text>
+                    <text x="380" y="277" font-size="11.5" fill="#555">导入数据 → 标准化 → 建模 → 评分/验证 → 可视化</text>
+                </g>
+            </svg>
+            <figcaption>图 24-1　Python 多元分析生态：四个核心库各司其职，共享 numpy/pandas 数据层与 fit/predict/transform 接口（分工为教学示意）。</figcaption>
+        </figure>
 
         <p>scikit-learn的 <code>PCA</code> 类是对R的 <code>prcomp()</code> 的Python等价物，底层同样使用SVD分解。用法非常简洁：</p>
 
@@ -392,7 +441,7 @@ plt.show()</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="25.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
