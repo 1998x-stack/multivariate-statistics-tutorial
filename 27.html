@@ -223,7 +223,7 @@ birch = Birch(n_clusters=n_clusters, threshold=0.5)
 # BIRCH通过CF树增量构建，适合内存受限场景
 # 只需要一次数据扫描即可完成</code></pre>
 
-        <p>Mini-Batch K-means和完整K-means的关键区别在于：完整K-means每次迭代都要扫描全部数据来重新计算簇中心；Mini-Batch K-means每次只用一个小样本来更新中心。在10万条数据上，Mini-Batch K-means通常能比完整K-means快10-100倍，而聚类质量的损失通常不到5%。</p>
+        <p>Mini-Batch K-means和完整K-means的关键区别在于：完整K-means每次迭代都要扫描全部数据来重新计算簇中心；Mini-Batch K-means每次只用一个小样本来更新中心。在10万条数据上，Mini-Batch K-means通常能比完整 K-means 快 10–100 倍，而聚类质量的损失通常很小——这里的倍数与损失量级为常见经验值（教学示意），实际数值随数据规模、批大小与簇结构变化。</p>
 
         <h2>大规模CCA</h2>
 
