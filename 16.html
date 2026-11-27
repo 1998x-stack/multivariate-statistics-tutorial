@@ -166,10 +166,17 @@ J = Σₖ Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
                 <line x1="214" y1="216" x2="214" y2="320" stroke="#d06d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
                 <line x1="90" y1="216" x2="214" y2="216" stroke="#d06d4d" stroke-width="1.5" stroke-dasharray="5 4"/>
                 <circle cx="214" cy="216" r="7" fill="none" stroke="#d06d4d" stroke-width="2.5"/>
+                <circle id="f16-marker" cx="338" cy="245" r="5" fill="#d06d4d"/>
                 <text x="224" y="240" font-size="13" fill="#b45309" font-weight="600">肘部 K = 3</text>
                 <text x="300" y="300" font-size="12" fill="#64748b">肘部之后下降变缓</text>
             </svg>
-            <figcaption>图 16-1　肘部法则：纵轴 WCSS 随 K 单调递减，拐点（此处 K = 3）前后下降速率差异明显。曲线为教学示意，真实数据的肘部可能不够尖锐。</figcaption>
+            <div class="figure-controls">
+                <label for="f16-k">簇数 K</label>
+                <input type="range" id="f16-k" min="1" max="10" step="1" value="5" aria-describedby="f16-out">
+                <button type="button" id="f16-reset">定位肘部（K = 3）</button>
+                <output id="f16-out" aria-live="polite">K = 5；相对 K = 4 的 WCSS 降幅 Δ = 11（示意刻度）</output>
+            </div>
+            <figcaption>图 16-1　肘部法则：纵轴 WCSS 随 K 单调递减，拐点（此处 K = 3）前后下降速率差异明显。拖动滑块改变 K，标记点随之沿曲线移动，可看到 K 超过 3 后相邻降幅 Δ 迅速变小。曲线为教学示意，真实数据的肘部可能不够尖锐。</figcaption>
         </figure>
 
         <h3>轮廓系数 (Silhouette Coefficient)</h3>
@@ -321,5 +328,32 @@ J = Σₖ Σ_{xᵢ∈Cₖ} ||xᵢ - μₖ||²
     </main>
 </div>
 </div>
+<script>
+(function () {
+    var marker = document.getElementById('f16-marker');
+    if (!marker) return;
+    var xs = [90, 152, 214, 276, 338, 400, 462, 524, 586, 648];
+    var ys = [60, 159, 216, 234, 245, 252, 259, 264, 268, 272];
+    var rng = document.getElementById('f16-k');
+    var reset = document.getElementById('f16-reset');
+    var out = document.getElementById('f16-out');
+    function render() {
+        var k = parseInt(rng.value, 10);
+        var i = k - 1;
+        marker.setAttribute('cx', xs[i]);
+        marker.setAttribute('cy', ys[i]);
+        if (i > 0) {
+            var delta = ys[i] - ys[i - 1];
+            out.textContent = 'K = ' + k + '；相对 K = ' + (k - 1) +
+                ' 的 WCSS 降幅 Δ = ' + delta + '（示意刻度）';
+        } else {
+            out.textContent = 'K = 1；起点（全部样本在同一簇），无相邻降幅';
+        }
+    }
+    rng.addEventListener('input', render);
+    reset.addEventListener('click', function () { rng.value = '3'; render(); });
+    render();
+})();
+</script>
 </body>
 </html>
