@@ -119,7 +119,7 @@ import matplotlib.pyplot as plt
 
 # 演示距离集中现象
 def avg_distance_ratio(dim, n_samples=1000):
-    """生成n_samples个d维均匀随机点，计算最近/最远距离比"""
+    """计算样本点到原点距离的最小/最大值之比（趋近 1 表示距离集中）"""
     points = np.random.uniform(0, 1, size=(n_samples, dim))
     # 计算到原点的距离
     dists = np.sqrt(np.sum(points**2, axis=1))
@@ -138,8 +138,8 @@ plt.axhline(y=0.9, color='r', linestyle='--', alpha=0.5,
             label='90% threshold — beyond this, distances are indistinguishable')
 plt.legend()
 plt.show()
-# 结果：当维度 > 50时，最近邻和最远邻的距离比超过0.9
-# 这意味着所有点"几乎等距"</code></pre>
+# 结果：维度升高时该比值趋近 1；约从 d≈100 起达到 0.9 以上
+# 这意味着所有点到原点的距离“几乎等距”</code></pre>
 
         <table>
             <tr><th>维度</th><th>min/max 距离比</th><th>含义</th></tr>
@@ -149,6 +149,8 @@ plt.show()
             <tr><td>100</td><td>0.89</td><td>所有点距离几乎相同，近邻失去意义</td></tr>
             <tr><td>500</td><td>0.97</td><td>距离集中现象严重，KNN/KMeans基本失效</td></tr>
         </table>
+
+        <p>（表中比值为教学示意，会随随机种子、样本量与采样分布波动，仅用于说明“维度升高、距离趋于集中”的趋势；上文代码未固定随机种子，实际运行数值可能不同。）</p>
 
         <h2>高维对经典方法的冲击</h2>
 
