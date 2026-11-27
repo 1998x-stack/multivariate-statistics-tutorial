@@ -129,7 +129,8 @@ dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
                 <desc id="f17-desc">两个二维类别（蓝、橙）各自成团。虚线连接两类的中心，是 Fisher 投影方向；与它垂直的实线是判别边界（超平面），把平面分成两块，两侧的样本被判为不同类别。</desc>
                 <rect width="720" height="380" fill="#fafafe"/>
                 <line x1="180" y1="300" x2="560" y2="110" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="7 5"/>
-                <line x1="300" y1="330" x2="430" y2="70" stroke="#1f2937" stroke-width="2.5"/>
+                <line id="f17-linear" x1="300" y1="330" x2="430" y2="70" stroke="#1f2937" stroke-width="2.5"/>
+                <path id="f17-quad" d="M 300 330 Q 400 220 430 70" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="9 5" style="display:none"/>
                 <g fill="#0ea5e9">
                     <circle cx="200" cy="290" r="7"/><circle cx="220" cy="265" r="7"/><circle cx="235" cy="285" r="7"/>
                     <circle cx="250" cy="260" r="7"/><circle cx="265" cy="280" r="7"/><circle cx="210" cy="250" r="7"/>
@@ -145,9 +146,14 @@ dₖ_M(x) = (x - μₖ)ᵀ Σ⁻¹ (x - μₖ)
                 <text x="150" y="230" font-size="14" fill="#0e7490" font-weight="600">类 1</text>
                 <text x="540" y="200" font-size="14" fill="#b45309" font-weight="600">类 2</text>
                 <text x="190" y="330" font-size="12" fill="#64748b">虚线：投影方向 a（类中心连线）</text>
-                <text x="440" y="320" font-size="12" fill="#1f2937">实线：判别边界（超平面）</text>
+                <text id="f17-bound-label" x="440" y="320" font-size="12" fill="#1f2937">实线：判别边界（超平面）</text>
             </svg>
-            <figcaption>图 17-1　Fisher LDA 的几何：找一个投影方向 a 使两类中心尽量分开、类内散布尽量小；与 a 垂直的超平面即判别边界。左蓝右橙为教学示意数据。</figcaption>
+            <div class="figure-controls">
+                <button type="button" id="f17-lda" aria-pressed="true">LDA（线性边界）</button>
+                <button type="button" id="f17-qda" aria-pressed="false">QDA（二次边界）</button>
+                <output id="f17-out" aria-live="polite">当前：两类共享协方差，边界为直线</output>
+            </div>
+            <figcaption>图 17-1　Fisher LDA 的几何：找一个投影方向 a 使两类中心尽量分开、类内散布尽量小；与 a 垂直的超平面即判别边界。切换可比较 LDA（两类协方差相同，边界为直线）与 QDA（各类协方差不同，边界为二次曲线）。左蓝右橙为教学示意数据。</figcaption>
         </figure>
 
         <p><strong>线性判别分析 (Linear Discriminant Analysis, LDA)</strong> 是判别分析中最经典的方法。费希尔提出的版本是从一个几何问题出发——"找一个投影方向，使得投影后各类的均值尽可能分开、同时各类内部的散布尽可能小"。这个思想后来被称为 <strong>Fisher's LDA</strong>。</p>
@@ -365,5 +371,33 @@ print(f"第一个判别函数的系数: "
     </main>
 </div>
 </div>
+<script>
+(function () {
+    var bLda = document.getElementById('f17-lda');
+    if (!bLda) return;
+    var bQda = document.getElementById('f17-qda');
+    var linear = document.getElementById('f17-linear');
+    var quad = document.getElementById('f17-quad');
+    var label = document.getElementById('f17-bound-label');
+    var out = document.getElementById('f17-out');
+    function render() {
+        var lda = bLda.getAttribute('aria-pressed') === 'true';
+        linear.style.display = lda ? '' : 'none';
+        quad.style.display = lda ? 'none' : '';
+        label.textContent = lda ? '实线：判别边界（超平面）' : '紫虚线：二次判别边界（曲面）';
+        out.textContent = lda
+            ? '当前：两类共享协方差，边界为直线'
+            : '当前：两类协方差不同，边界为二次曲线';
+    }
+    function set(lda) {
+        bLda.setAttribute('aria-pressed', lda ? 'true' : 'false');
+        bQda.setAttribute('aria-pressed', lda ? 'false' : 'true');
+        render();
+    }
+    bLda.addEventListener('click', function () { set(true); });
+    bQda.addEventListener('click', function () { set(false); });
+    render();
+})();
+</script>
 </body>
 </html>
