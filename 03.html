@@ -118,15 +118,22 @@
                 <line x1="470" y1="200" x2="730" y2="200" stroke="#cbd5e1"/>
                 <line x1="600" y1="90" x2="600" y2="320" stroke="#cbd5e1"/>
                 <g fill="none" stroke="#7c3aed" stroke-width="2">
-                    <ellipse cx="600" cy="200" rx="118" ry="44" transform="rotate(-32 600 200)"/>
-                    <ellipse cx="600" cy="200" rx="78" ry="29" transform="rotate(-32 600 200)"/>
-                    <ellipse cx="600" cy="200" rx="38" ry="14" transform="rotate(-32 600 200)"/>
+                    <ellipse id="f3-c1" cx="600" cy="200" rx="118" ry="49.6" transform="rotate(-45 600 200)"/>
+                    <ellipse id="f3-c2" cx="600" cy="200" rx="77.9" ry="32.7" transform="rotate(-45 600 200)"/>
+                    <ellipse id="f3-c3" cx="600" cy="200" rx="37.8" ry="15.9" transform="rotate(-45 600 200)"/>
                 </g>
-                <line x1="530" y1="245" x2="670" y2="155" stroke="#d06d4d" stroke-width="2.5"/>
+                <line id="f3-axis" x1="516.6" y1="283.4" x2="683.4" y2="116.6" stroke="#d06d4d" stroke-width="2.5"/>
+                <text id="f3-rho-label" x="474" y="334" font-size="13" fill="#6d28d9" font-weight="600">ρ = 0.70</text>
                 <circle cx="600" cy="200" r="5" fill="#6d28d9"/>
                 <text x="672" y="152" font-size="13" fill="#b45309">长轴（最大特征向量）</text>
             </svg>
-            <figcaption>图 3-1　二元正态的几何：等高线（密度等值线）的形状完全由协方差矩阵 Σ 决定——不相关为圆，相关为倾斜椭圆；长轴方向即 PCA 的第一主成分方向。图为教学示意。</figcaption>
+            <div class="figure-controls">
+                <label for="f3-rho-range">相关系数 ρ</label>
+                <input type="range" id="f3-rho-range" min="-0.95" max="0.95" step="0.05" value="0.7" aria-describedby="f3-out">
+                <button type="button" id="f3-reset">独立（ρ = 0）</button>
+                <output id="f3-out" aria-live="polite">ρ = 0.70；Var(X₂|X₁) = 1 − ρ² = 0.510</output>
+            </div>
+            <figcaption>图 3-1　二元正态的几何：等高线（密度等值线）的形状完全由协方差矩阵 Σ 决定——不相关为圆，相关为倾斜椭圆；长轴方向即 PCA 的第一主成分方向。拖动滑块改变相关系数 ρ（单位方差下特征值为 1±ρ），可看到椭圆按 45° 方向伸缩与翻转，条件方差 Var(X₂|X₁) = 1 − ρ² 随之变化。图为教学示意。</figcaption>
         </figure>
 
         <h2>重要性质</h2>
@@ -295,5 +302,46 @@ x̄ 和 S 是独立的
     </main>
 </div>
 </div>
+<script>
+(function () {
+    var e1 = document.getElementById('f3-c1');
+    if (!e1) return;
+    var els = [e1, document.getElementById('f3-c2'), document.getElementById('f3-c3')];
+    var R = [1.0, 0.66, 0.32];      // 三条等高线的相对半径
+    var K = 90.5;                    // 与图中椭圆尺度一致的比例常数
+    var axis = document.getElementById('f3-axis');
+    var label = document.getElementById('f3-rho-label');
+    var rng = document.getElementById('f3-rho-range');
+    var reset = document.getElementById('f3-reset');
+    var out = document.getElementById('f3-out');
+    function render() {
+        var rho = parseFloat(rng.value);
+        var ar = Math.abs(rho);
+        var rot = rho >= 0 ? -45 : 45;
+        for (var i = 0; i < 3; i++) {
+            els[i].setAttribute('rx', (K * R[i] * Math.sqrt(1 + ar)).toFixed(1));
+            els[i].setAttribute('ry', (K * R[i] * Math.sqrt(1 - ar)).toFixed(1));
+            els[i].setAttribute('transform', 'rotate(' + rot + ' 600 200)');
+        }
+        var rx = K * Math.sqrt(1 + ar);
+        if (ar < 0.02) {
+            axis.style.display = 'none';
+        } else {
+            axis.style.display = '';
+            var dx = (rho >= 0 ? 1 : -1) * rx * 0.7071, dy = -rx * 0.7071;
+            axis.setAttribute('x1', (600 - dx).toFixed(1));
+            axis.setAttribute('y1', (200 - dy).toFixed(1));
+            axis.setAttribute('x2', (600 + dx).toFixed(1));
+            axis.setAttribute('y2', (200 + dy).toFixed(1));
+        }
+        label.textContent = 'ρ = ' + rho.toFixed(2);
+        out.textContent = 'ρ = ' + rho.toFixed(2) + '；条件方差 Var(X₂|X₁) = 1 − ρ² = ' +
+            (1 - rho * rho).toFixed(3) + (ar < 0.02 ? '（各向同性，主方向无定义）' : '');
+    }
+    rng.addEventListener('input', render);
+    reset.addEventListener('click', function () { rng.value = '0'; render(); });
+    render();
+})();
+</script>
 </body>
 </html>
